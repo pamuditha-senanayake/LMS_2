@@ -1,5 +1,6 @@
 package com.lms.backend.service;
 
+import com.lms.backend.dto.TicketUpdateRequest;
 import com.lms.backend.model.IncidentTicket;
 import com.lms.backend.model.Notification;
 import com.lms.backend.model.TicketAttachment;
@@ -226,20 +227,20 @@ public class TicketingService {
         ticketRepository.deleteById(ticketId);
     }
 
-    public IncidentTicket updateTicket(String ticketId, IncidentTicket updates) {
+    public IncidentTicket updateTicket(String ticketId, TicketUpdateRequest updates) {
         IncidentTicket ticket = ticketRepository.findById(ticketId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Ticket not found"));
         
-        if (updates.getTitle() != null) {
+        if (updates.getTitle() != null && !updates.getTitle().isBlank()) {
             ticket.setTitle(updates.getTitle());
         }
-        if (updates.getDescription() != null) {
+        if (updates.getDescription() != null && !updates.getDescription().isBlank()) {
             ticket.setDescription(updates.getDescription());
         }
         if (updates.getResourceId() != null) {
             ticket.setResourceId(updates.getResourceId());
         }
-        if (updates.getPriority() != null) {
+        if (updates.getPriority() != null && !updates.getPriority().isBlank()) {
             ticket.setPriority(updates.getPriority());
         }
         

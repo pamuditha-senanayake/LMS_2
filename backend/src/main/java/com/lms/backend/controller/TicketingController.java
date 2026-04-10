@@ -1,5 +1,6 @@
 package com.lms.backend.controller;
 
+import com.lms.backend.dto.TicketUpdateRequest;
 import com.lms.backend.model.IncidentTicket;
 import com.lms.backend.model.TicketAttachment;
 import com.lms.backend.model.TicketComment;
@@ -148,7 +149,7 @@ public class TicketingController {
     @PutMapping("/{ticketId}")
     public ResponseEntity<IncidentTicket> updateTicket(
             @PathVariable String ticketId,
-            @RequestBody IncidentTicket updates) {
+            @RequestBody TicketUpdateRequest updates) {
         return ResponseEntity.ok(ticketingService.updateTicket(ticketId, updates));
     }
 
