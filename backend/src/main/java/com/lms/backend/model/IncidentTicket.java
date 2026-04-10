@@ -56,4 +56,6 @@ public class IncidentTicket {
     
     private LocalDateTime resolvedAt;
     private LocalDateTime closedAt;
+    
+    private boolean ratingSubmitted;
 }

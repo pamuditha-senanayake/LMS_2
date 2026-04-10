@@ -24,6 +24,7 @@ import {
     Activity,
     ArrowUpRight,
     ArrowDownRight,
+    Star,
 } from "lucide-react";
 
 const tooltipStyle = {
@@ -49,6 +50,7 @@ const tooltipItemStyle = {
 export default function TicketStatistics() {
     const [stats, setStats] = useState<any>(null);
     const [volumeData, setVolumeData] = useState<any[]>([]);
+    const [ratingStats, setRatingStats] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
     const [dateRange, setDateRange] = useState("30");
@@ -63,9 +65,12 @@ export default function TicketStatistics() {
         }
         try {
             const allTicketsRes = await fetch(`${apiUrl}/api/tickets`, { credentials: "include" });
-            const [statsRes, volumeRes] = await Promise.all([
+            const [statsRes, volumeRes, ratingRes] = await Promise.all([
                 fetch(`${apiUrl}/api/tickets/statistics`, { credentials: "include" }),
                 fetch(`${apiUrl}/api/tickets/statistics/volume?days=${dateRange}`, {
+                    credentials: "include",
+                }),
+                fetch(`${apiUrl}/api/tickets/statistics/ratings`, {
                     credentials: "include",
                 }),
             ]);
@@ -113,6 +118,11 @@ export default function TicketStatistics() {
                     }))
                     .sort((a, b) => a.date.localeCompare(b.date));
                 setVolumeData(chartData);
+            }
+
+            if (ratingRes.ok) {
+                const ratingData = await ratingRes.json();
+                setRatingStats(ratingData);
             }
         } catch (err) {
             console.error("Failed to fetch statistics:", err);
@@ -321,6 +331,60 @@ export default function TicketStatistics() {
                                 glowColor="blue"
                             />
                         </div>
+
+                        {ratingStats && ratingStats.totalRatings > 0 && (
+                            <div className="mb-8">
+                                <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                                    <Star size={20} className="text-yellow-400 fill-yellow-400" />
+                                    User Satisfaction
+                                </h3>
+                                <div className="glass-card rounded-3xl p-6 border border-slate-700/50">
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                        <div className="text-center">
+                                            <div className="flex items-center justify-center gap-2 mb-2">
+                                                <span className="text-5xl font-bold text-yellow-400">{ratingStats.averageRating || 0}</span>
+                                                <span className="text-2xl text-slate-400">/5</span>
+                                            </div>
+                                            <div className="flex justify-center gap-1 mb-2">
+                                                {[1, 2, 3, 4, 5].map((star) => (
+                                                    <Star
+                                                        key={star}
+                                                        size={24}
+                                                        className={`${star <= Math.round(ratingStats.averageRating || 0) ? "text-yellow-400 fill-yellow-400" : "text-slate-600"}`}
+                                                    />
+                                                ))}
+                                            </div>
+                                            <p className="text-sm text-slate-400">Average Rating</p>
+                                        </div>
+                                        <div className="text-center">
+                                            <div className="text-5xl font-bold text-emerald-400 mb-2">{ratingStats.totalRatings}</div>
+                                            <p className="text-sm text-slate-400">Total Ratings</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-sm text-slate-400 mb-3">Rating Distribution</p>
+                                            <div className="space-y-2">
+                                                {[5, 4, 3, 2, 1].map((star) => {
+                                                    const count = ratingStats.ratingDistribution?.[String(star)] || 0;
+                                                    const percentage = ratingStats.totalRatings > 0 ? (count / ratingStats.totalRatings) * 100 : 0;
+                                                    return (
+                                                        <div key={star} className="flex items-center gap-2">
+                                                            <span className="text-xs text-slate-400 w-6">{star}★</span>
+                                                            <div className="flex-1 h-2 bg-slate-700 rounded-full overflow-hidden">
+                                                                <div
+                                                                    className="h-full bg-yellow-400 rounded-full transition-all"
+                                                                    style={{ width: `${percentage}%` }}
+                                                                />
+                                                            </div>
+                                                            <span className="text-xs text-slate-400 w-8 text-right">{count}</span>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
 
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
                             <div className="lg:col-span-2 glass-card rounded-3xl p-6 border border-slate-700/50">

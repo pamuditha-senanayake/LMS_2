@@ -189,9 +189,12 @@ export default function Navbar() {
                         <button 
                             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                             className={`flex items-center gap-3 px-4 py-2.5 rounded-xl border transition-all group active:scale-95
-                                ${isDropdownOpen 
-                                    ? "bg-primary/10 border-primary/40 text-foreground shadow-lg shadow-primary/5" 
-                                    : "bg-card border-border-main text-muted hover:border-primary/30 hover:text-primary"}
+                                ${!user 
+                                    ? "btn-primary-action border-transparent" 
+                                    : (isDropdownOpen 
+                                        ? "bg-primary/10 border-primary/40 text-foreground shadow-lg shadow-primary/5" 
+                                        : "bg-card border-border-main text-muted hover:border-primary/30 hover:text-primary")
+                                }
                             `}
                         >
                             {user ? (
@@ -217,7 +220,7 @@ export default function Navbar() {
 
                         {/* Dropdown Menu */}
                         {isDropdownOpen && (
-                            <div className="absolute right-0 mt-3 w-64 bg-card border border-border-main rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200 z-[150]">
+                            <div className="absolute right-0 mt-3 w-64 bg-card backdrop-blur-3xl border border-border-main rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200 z-[150]">
                                 {user ? (
                                     <div className="p-2">
                                         <div className="px-4 py-4 border-b border-border-main mb-1 bg-foreground/5 rounded-t-xl">
@@ -249,7 +252,7 @@ export default function Navbar() {
                                         <Link 
                                             href="/register" 
                                             onClick={() => setIsDropdownOpen(false)}
-                                            className="flex items-center gap-3 px-4 py-3.5 rounded-xl text-[11px] font-black uppercase tracking-widest text-white bg-primary hover:bg-primary-dark transition-all mt-1 shadow-xl shadow-primary/20 border border-primary/20 active:scale-95"
+                                            className="flex items-center gap-3 px-4 py-3.5 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all mt-1 shadow-xl active:scale-95 btn-primary-action"
                                         >
                                             <UserPlus size={18} strokeWidth={3} />
                                             Register Now
