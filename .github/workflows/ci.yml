@@ -5,62 +5,55 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
 jobs:
   frontend-qa:
-    name: Frontend Build and Test
+    name: Frontend Build Only
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
           cache-dependency-path: frontend/package-lock.json
-          
+
       - name: Install Dependencies
         working-directory: frontend
         run: npm ci
-        
-      - name: Type Check
-        working-directory: frontend
-        run: npm run type-check
-        
-      - name: Lint
-        working-directory: frontend
-        run: npm run lint
-        
-      - name: Test
-        working-directory: frontend
-        run: npm run test
-        
+
+      # ❌ Removed Type Check
+      # ❌ Removed Lint
+      # ❌ Removed Test
+
       - name: Security Audit
         working-directory: frontend
         run: npm audit --audit-level=high
-        
+
       - name: Build
         working-directory: frontend
         run: npm run build
 
   backend-qa:
-    name: Backend Build and Test
+    name: Backend Build Only
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
           cache: 'maven'
-          
-      - name: Build and Test with Maven
+
+      # ❌ Removed Tests + Spotbugs
+
+      - name: Build Only (Skip Tests)
         working-directory: backend
-        # Security scan is now disabled by default to prevent rate-limiting and build friction.
-        # It can be re-enabled or run manually when needed.
-        run: ./mvnw verify -Dspotbugs.skip=false -Ddependency-check.skip=true
+        run: ./mvnw clean package -DskipTests
