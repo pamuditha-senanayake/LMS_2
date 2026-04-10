@@ -283,12 +283,19 @@ export default function FacilityDetailsModal({ resource, isOpen, onClose, prefil
             console.log("Booking request to:", `${apiUrl}/api/bookings`);
             console.log("Booking payload:", JSON.stringify(bookingData, null, 2));
             
+            const headers: Record<string, string> = {
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+            };
+            
+            if (user && user.token) {
+                headers["Authorization"] = `Bearer ${user.token}`;
+                console.log("Added Authorization header");
+            }
+            
             const res = await fetch(`${apiUrl}/api/bookings`, {
                 method: "POST",
-                headers: { 
-                    "Content-Type": "application/json",
-                    "Accept": "application/json"
-                },
+                headers: headers,
                 credentials: "include",
                 body: JSON.stringify(bookingData)
             });

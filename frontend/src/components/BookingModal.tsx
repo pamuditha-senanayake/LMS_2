@@ -168,16 +168,28 @@ export default function BookingModal({ isOpen, onClose, onSuccess, editBooking, 
         requestedByEmail: user?.email || "anonymous@example.com",
       };
 
-      const res = editBooking
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+        };
+        
+        const storedUser = localStorage.getItem("user");
+        if (storedUser) {
+            const userObj = JSON.parse(storedUser);
+            if (userObj.token) {
+                headers["Authorization"] = `Bearer ${userObj.token}`;
+            }
+        }
+        
+        const res = editBooking
         ? await fetch(`${apiUrl}/api/bookings/${editBooking.id}`, {
             method: "PUT",
-            headers: { "Content-Type": "application/json" },
+            headers: headers,
             credentials: "include",
             body: JSON.stringify(payload),
           })
         : await fetch(`${apiUrl}/api/bookings`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: headers,
             credentials: "include",
             body: JSON.stringify(payload),
           });
