@@ -291,9 +291,15 @@ body::before {
 
 /* Theme-Aware Primary Action Button Utility */
 .btn-primary-action {
-    @apply transition-all active:scale-95 shadow-xl;
+    transition: all 0.2s ease;
+    transform: scale(1);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
     background-color: var(--primary);
     color: white;
+}
+
+.btn-primary-action:active {
+    transform: scale(0.95);
 }
 
 [data-theme="light"] .btn-primary-action {
