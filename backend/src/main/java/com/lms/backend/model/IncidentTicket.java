@@ -29,7 +29,6 @@ public class IncidentTicket {
     private String rejectedById;
     
     private String ticketCode;
-    @NotBlank(message = "Category is required")
     private String category;
 
     @NotBlank(message = "Title is required")

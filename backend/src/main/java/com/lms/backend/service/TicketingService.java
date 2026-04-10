@@ -243,6 +243,9 @@ public class TicketingService {
         if (updates.getPriority() != null && !updates.getPriority().isBlank()) {
             ticket.setPriority(updates.getPriority());
         }
+        if (updates.getCategory() != null) {
+            ticket.setCategory(updates.getCategory());
+        }
         
         return ticketRepository.save(ticket);
     }

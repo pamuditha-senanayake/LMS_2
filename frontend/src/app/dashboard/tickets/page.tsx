@@ -21,7 +21,8 @@ export default function TicketingPage() {
         title: '',
         description: '',
         resourceId: '',
-        priority: 'MEDIUM'
+        priority: 'MEDIUM',
+        category: 'GENERAL'
     });
     const [submitting, setSubmitting] = useState(false);
     const [selectedImages, setSelectedImages] = useState<File[]>([]);
@@ -329,7 +330,8 @@ export default function TicketingPage() {
             title: ticket.title || '',
             description: ticket.description || '',
             resourceId: ticket.resourceId || '',
-            priority: ticket.priority || 'MEDIUM'
+            priority: ticket.priority || 'MEDIUM',
+            category: ticket.category || 'GENERAL'
         });
         setShowEditModal(true);
     };

@@ -56,6 +56,7 @@ public class TicketingController {
                 .resourceId(resourceId)
                 .priority(priority)
                 .reportedById(reportedById)
+                .category("GENERAL")
                 .status("OPEN")
                 .build();
         
