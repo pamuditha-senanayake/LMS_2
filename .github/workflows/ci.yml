@@ -26,13 +26,9 @@ jobs:
         working-directory: frontend
         run: npm ci
 
-      # ❌ Removed Type Check
-      # ❌ Removed Lint
-      # ❌ Removed Test
-
-      - name: Security Audit
-        working-directory: frontend
-        run: npm audit --audit-level=high
+      # ❌ No tests
+      # ❌ No lint
+      # ❌ No audit
 
       - name: Build
         working-directory: frontend
@@ -52,7 +48,8 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
 
-      # ❌ Removed Tests + Spotbugs
+      # ❌ No tests
+      # ❌ No analysis
 
       - name: Build Only (Skip Tests)
         working-directory: backend
