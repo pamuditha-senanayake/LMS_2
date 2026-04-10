@@ -166,7 +166,7 @@ export default function Home() {
                             <>
                                 <Link 
                                     href="/register"
-                                    className="group relative bg-primary text-white px-10 py-5 rounded-2xl font-black text-sm uppercase tracking-widest transition-all duration-300 shadow-2xl shadow-primary/20 overflow-hidden hover:bg-primary-dark active:scale-95"
+                                    className="group relative btn-primary-action text-white px-10 py-5 rounded-2xl font-black text-sm uppercase tracking-widest overflow-hidden active:scale-95"
                                 >
                                     <div className="absolute inset-0 bg-white/10 -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
                                     <span className="relative">Start Institutional Account</span>
