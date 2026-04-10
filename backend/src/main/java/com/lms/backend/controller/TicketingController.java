@@ -3,7 +3,9 @@ package com.lms.backend.controller;
 import com.lms.backend.model.IncidentTicket;
 import com.lms.backend.model.TicketAttachment;
 import com.lms.backend.model.TicketComment;
+import com.lms.backend.model.TicketRating;
 import com.lms.backend.service.FileStorageService;
+import com.lms.backend.service.RatingService;
 import com.lms.backend.service.TicketingService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +25,7 @@ public class TicketingController {
 
     private final TicketingService ticketingService;
     private final FileStorageService fileStorageService;
+    private final RatingService ratingService;
 
     @GetMapping
     public ResponseEntity<List<IncidentTicket>> getAllTickets(@RequestParam(required = false) String userId) {
@@ -165,5 +168,40 @@ public class TicketingController {
     @GetMapping("/statistics/staff")
     public ResponseEntity<Map<String, Long>> getStaffPerformance() {
         return ResponseEntity.ok(ticketingService.getTicketCountByAssignedStaff());
+    }
+
+    @PostMapping("/{ticketId}/rating")
+    public ResponseEntity<TicketRating> submitRating(
+            @PathVariable String ticketId,
+            @RequestParam String userId,
+            @RequestParam int rating,
+            @RequestParam(required = false) String feedback) {
+        return ResponseEntity.ok(ratingService.submitRating(ticketId, userId, rating, feedback));
+    }
+
+    @GetMapping("/{ticketId}/rating")
+    public ResponseEntity<TicketRating> getRating(
+            @PathVariable String ticketId,
+            @RequestParam String userId) {
+        return ratingService.getRating(ticketId, userId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/ratings")
+    public ResponseEntity<List<TicketRating>> getAllRatings() {
+        return ResponseEntity.ok(ratingService.getAllRatings());
+    }
+
+    @GetMapping("/ratings/ticket/{ticketId}")
+    public ResponseEntity<TicketRating> getRatingByTicket(@PathVariable String ticketId) {
+        return ratingService.getRatingByTicketId(ticketId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/statistics/ratings")
+    public ResponseEntity<Map<String, Object>> getRatingStatistics() {
+        return ResponseEntity.ok(ratingService.getRatingStatistics());
     }
 }
