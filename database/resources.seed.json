@@ -1,0 +1,227 @@
+[
+  {
+    "resourceName": "Main Auditorium",
+    "resourceCode": "RES-001",
+    "resourceType": "LECTURE_HALL",
+    "status": "ACTIVE",
+    "capacity": 500,
+    "hourlyRate": 0,
+    "description": "Large auditorium with state-of-the-art audio-visual equipment, suitable for university-wide events, lectures, and seminars.",
+    "location": {
+      "campusName": "Main Campus",
+      "buildingName": "Engineering Building",
+      "roomNumber": "A-101"
+    },
+    "amenities": ["Projector", "Microphone", "Air Conditioning", "Wheelchair Access", "Recording Equipment"]
+  },
+  {
+    "resourceName": "Computer Lab A",
+    "resourceCode": "RES-002",
+    "resourceType": "LAB",
+    "status": "ACTIVE",
+    "capacity": 60,
+    "hourlyRate": 0,
+    "description": "Computer laboratory with high-performance workstations for programming and software development courses.",
+    "location": {
+      "campusName": "Main Campus",
+      "buildingName": "Computer Science Building",
+      "roomNumber": "CS-201"
+    },
+    "amenities": ["60 Workstations", "Projector", "Whiteboard", "Air Conditioning", "Printing Access"]
+  },
+  {
+    "resourceName": "Chemistry Lab",
+    "resourceCode": "RES-003",
+    "resourceType": "LAB",
+    "status": "ACTIVE",
+    "capacity": 40,
+    "hourlyRate": 50,
+    "description": "Fully equipped chemistry laboratory with safety features for practical experiments.",
+    "location": {
+      "campusName": "Science Campus",
+      "buildingName": "Science Tower",
+      "roomNumber": "SC-105"
+    },
+    "amenities": ["Fume Hoods", "Safety Showers", "Eye Wash Stations", "Gas Lines", "Waste Disposal"]
+  },
+  {
+    "resourceName": "Physics Lab",
+    "resourceCode": "RES-004",
+    "resourceType": "LAB",
+    "status": "ACTIVE",
+    "capacity": 35,
+    "hourlyRate": 40,
+    "description": "Modern physics laboratory with equipment for mechanics, optics, and electromagnetism experiments.",
+    "location": {
+      "campusName": "Science Campus",
+      "buildingName": "Science Tower",
+      "roomNumber": "SC-203"
+    },
+    "amenities": ["Oscilloscopes", "Lasers", "Optics Bench", "Power Supplies", "Measurement Tools"]
+  },
+  {
+    "resourceName": "Executive Boardroom",
+    "resourceCode": "RES-005",
+    "resourceType": "MEETING_ROOM",
+    "status": "ACTIVE",
+    "capacity": 20,
+    "hourlyRate": 100,
+    "description": "Premium boardroom with video conferencing capabilities for executive meetings and presentations.",
+    "location": {
+      "campusName": "Main Campus",
+      "buildingName": "Administration Building",
+      "roomNumber": "ADB-501"
+    },
+    "amenities": ["Video Conferencing", "4K Display", "Whiteboard", "Catering Service", "Climate Control"]
+  },
+  {
+    "resourceName": "Seminar Room A",
+    "resourceCode": "RES-006",
+    "resourceType": "MEETING_ROOM",
+    "status": "ACTIVE",
+    "capacity": 15,
+    "hourlyRate": 30,
+    "description": "Compact seminar room ideal for small group discussions and workshops.",
+    "location": {
+      "campusName": "Main Campus",
+      "buildingName": "Liberal Arts Building",
+      "roomNumber": "LA-302"
+    },
+    "amenities": ["Projector", "Whiteboard", "Video Recording", "Flexible Seating"]
+  },
+  {
+    "resourceName": "Conference Hall B",
+    "resourceCode": "RES-007",
+    "resourceType": "LECTURE_HALL",
+    "status": "MAINTENANCE",
+    "capacity": 200,
+    "hourlyRate": 0,
+    "description": "Medium-sized conference hall with modern presentation equipment.",
+    "location": {
+      "campusName": "Main Campus",
+      "buildingName": "Convention Center",
+      "roomNumber": "CC-101"
+    },
+    "amenities": ["Dual Projectors", "Microphone System", "Live Streaming", "Breakout Rooms"]
+  },
+  {
+    "resourceName": "Multimedia Studio",
+    "resourceCode": "RES-008",
+    "resourceType": "EQUIPMENT",
+    "status": "ACTIVE",
+    "capacity": 10,
+    "hourlyRate": 75,
+    "description": "Professional multimedia studio for video production, podcast recording, and content creation.",
+    "location": {
+      "campusName": "Innovation Hub",
+      "buildingName": "Media Center",
+      "roomNumber": "MC-101"
+    },
+    "amenities": ["4K Cameras", "Green Screen", "Lighting Kit", "Audio Equipment", "Editing Suites"]
+  },
+  {
+    "resourceName": "Sports Complex - Main Hall",
+    "resourceCode": "RES-009",
+    "resourceType": "EQUIPMENT",
+    "status": "ACTIVE",
+    "capacity": 300,
+    "hourlyRate": 200,
+    "description": "Large indoor sports complex for basketball, volleyball, and indoor athletics.",
+    "location": {
+      "campusName": "Sports Campus",
+      "buildingName": "Sports Complex",
+      "roomNumber": "SC-MAIN"
+    },
+    "amenities": ["Basketball Courts", "Volleyball Courts", "Changing Rooms", "Equipment Storage", "First Aid"]
+  },
+  {
+    "resourceName": "Library Study Room 1",
+    "resourceCode": "RES-010",
+    "resourceType": "MEETING_ROOM",
+    "status": "ACTIVE",
+    "capacity": 8,
+    "hourlyRate": 0,
+    "description": "Quiet study room in the central library for group study sessions.",
+    "location": {
+      "campusName": "Main Campus",
+      "buildingName": "Central Library",
+      "roomNumber": "LIB-204"
+    },
+    "amenities": ["Whiteboard", "Display Screen", "Power Outlets", "Natural Lighting"]
+  },
+  {
+    "resourceName": "Library Study Room 2",
+    "resourceCode": "RES-011",
+    "resourceType": "MEETING_ROOM",
+    "status": "ACTIVE",
+    "capacity": 8,
+    "hourlyRate": 0,
+    "description": "Quiet study room in the central library for group study sessions.",
+    "location": {
+      "campusName": "Main Campus",
+      "buildingName": "Central Library",
+      "roomNumber": "LIB-205"
+    },
+    "amenities": ["Whiteboard", "Display Screen", "Power Outlets", "Natural Lighting"]
+  },
+  {
+    "resourceName": "Lecture Hall B",
+    "resourceCode": "RES-012",
+    "resourceType": "LECTURE_HALL",
+    "status": "ACTIVE",
+    "capacity": 150,
+    "hourlyRate": 0,
+    "description": "Medium-sized lecture hall with modern teaching technology.",
+    "location": {
+      "campusName": "Main Campus",
+      "buildingName": "Engineering Building",
+      "roomNumber": "EN-205"
+    },
+    "amenities": ["Interactive Whiteboard", "Document Camera", "Microphone", "Air Conditioning"]
+  },
+  {
+    "resourceName": "Robotics Lab",
+    "resourceCode": "RES-013",
+    "resourceType": "LAB",
+    "status": "ACTIVE",
+    "capacity": 30,
+    "hourlyRate": 60,
+    "description": "Specialized laboratory for robotics research and practical sessions.",
+    "location": {
+      "campusName": "Innovation Hub",
+      "buildingName": "Tech Tower",
+      "roomNumber": "TT-401"
+    },
+    "amenities": ["3D Printers", "Robot Arms", "Sensors Kit", "Welding Equipment", "Workbenches"]
+  },
+  {
+    "resourceName": "Projector Set A",
+    "resourceCode": "RES-014",
+    "resourceType": "EQUIPMENT",
+    "status": "ACTIVE",
+    "capacity": 1,
+    "hourlyRate": 15,
+    "description": "Portable projector set with screen for off-campus presentations.",
+    "location": {
+      "campusName": "Main Campus",
+      "buildingName": "Equipment Center",
+      "roomNumber": "EC-101"
+    },
+    "amenities": ["4K Projector", "Portable Screen", "Tripod Stand", "Carrying Case", "HDMI Cables"]
+  },
+  {
+    "resourceName": "Swimming Pool",
+    "resourceCode": "RES-015",
+    "resourceType": "EQUIPMENT",
+    "status": "ACTIVE",
+    "capacity": 50,
+    "hourlyRate": 150,
+    "description": "Olympic-size swimming pool with diving facilities.",
+    "location": {
+      "campusName": "Sports Campus",
+      "buildingName": "Aquatics Center",
+      "roomNumber": "AC-MAIN"
+    },
+    "amenities": ["25m Pool", "Diving Board", "Locker Rooms", "Lifeguard Station", "Timing System"]
+  }
+]

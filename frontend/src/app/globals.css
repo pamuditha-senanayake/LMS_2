@@ -1,0 +1,352 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-cream: var(--brand-cream);
+  --color-brand-peach: var(--brand-peach);
+  --color-brand-pink: var(--brand-pink);
+  --color-brand-purple: var(--brand-purple);
+  
+  /* Semantic brand mapping - map to indigo to support existing classes */
+  --color-indigo-400: var(--primary-light);
+  --color-indigo-500: var(--primary);
+  --color-indigo-600: var(--primary-dark);
+  
+  /* Text and BG mappings */
+  --color-foreground: var(--foreground);
+  --color-muted: var(--text-muted);
+  --color-card: var(--card-bg);
+  --color-border-main: var(--border-color);
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.animate-shimmer {
+  color: var(--primary);
+}
+
+.brand-text {
+  font-family: var(--font-montserrat), sans-serif;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: -0.05em;
+  color: var(--foreground);
+}
+
+:root {
+  --background: #020617;
+  --foreground: #ffffff;
+  --text-muted: #94a3b8;
+  
+  /* Brand Palette for Students/Lecturers */
+  --brand-cream: #FFF1D3;
+  --brand-peach: #FFB090;
+  --brand-pink: #CA5995;
+  --brand-purple: #5D1C6A;
+  
+  /* Semantic Colors */
+  --primary: #6366f1;
+  --primary-light: #818cf8;
+  --primary-dark: #4f46e5;
+  --card-bg: rgba(15, 23, 42, 0.6);
+  --input-bg: rgba(15, 23, 42, 0.6);
+  --border-color: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="light"] {
+  --background: #f8fafc;
+  --foreground: #0f172a;
+  --text-muted: #64748b;
+  --card-bg: #ffffff;
+  --input-bg: #ffffff;
+  --border-color: rgba(15, 23, 42, 0.08);
+  --primary: #1e1b4b; /* Even Deeper Navy for maximum contrast */
+  --primary-light: #3730a3;
+  --primary-dark: #312e81;
+}
+
+[data-account="student"] {
+  --primary: var(--brand-pink);
+  --primary-light: var(--brand-peach);
+  --primary-dark: var(--brand-purple);
+}
+
+/* Corrected Compound Selectors - Attributes are now on html */
+html[data-account="student"][data-theme="light"] {
+  --background: var(--brand-cream);
+  --card-bg: rgba(255, 255, 255, 0.7);
+  --border-color: rgba(93, 28, 106, 0.15);
+  --foreground: #2d0a35;
+  --primary: #832b5e; /* Dark Magenta */
+  --primary-light: #ca5995;
+  --primary-dark: #5d1c6a;
+}
+
+html[data-account="admin"][data-theme="light"] {
+  --background: #f1f5f9;
+  --card-bg: #ffffff;
+  --border-color: rgba(15, 23, 42, 0.1);
+  --foreground: #0f172a;
+  --primary: #1e1b4b;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+html, 
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  overflow-x: hidden;
+  width: 100%;
+}
+
+body {
+  position: relative;
+  min-height: 100vh;
+}
+
+/* Premium Gradient Background animation */
+body::before {
+  content: "";
+  position: fixed;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at 50% 50%, var(--primary) 0%, rgba(15, 23, 42, 0) 50%),
+              radial-gradient(circle at 80% 20%, var(--primary-light) 0%, rgba(15, 23, 42, 0) 40%);
+  opacity: 0.15;
+  z-index: -1;
+  pointer-events: none;
+}
+
+[data-theme="light"] body::before {
+  opacity: 0.4;
+  background: radial-gradient(circle at 50% 40%, var(--primary) 0%, rgba(255, 255, 255, 0) 60%),
+              radial-gradient(circle at 10% 20%, var(--brand-peach) 0%, rgba(255, 255, 255, 0) 40%);
+}
+
+@keyframes bg-pulse {
+  0% { transform: scale(1) translate(0, 0); }
+  100% { transform: scale(1.1) translate(-2%, 2%); }
+}
+
+.glass-card {
+  background: var(--card-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3);
+  transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+}
+
+.input-field {
+  background: var(--input-bg);
+  border: 1px solid var(--border-color);
+  color: var(--foreground);
+  transition: all 0.3s ease;
+}
+
+.input-field:focus {
+  border-color: rgba(99, 102, 241, 0.8);
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
+  outline: none;
+}
+
+/* Aggressive Scrollbar Hiding */
+.scrollbar-none {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+/* Overdue ticket pulsing glow animation */
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(239, 68, 68, 0.3), 0 0 15px rgba(239, 68, 68, 0.1);
+  }
+  50% {
+    box-shadow: 0 0 15px rgba(239, 68, 68, 0.6), 0 0 30px rgba(239, 68, 68, 0.3);
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+  border-left-width: 4px !important;
+}
+
+/* Modal slide in from top animation */
+@keyframes slide-in-from-top {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-in {
+  animation-fill-mode: both;
+}
+
+.slide-in-from-top-4 {
+  animation-name: slide-in-from-top;
+}
+
+/* Cloud Loader Animation */
+.loader {
+  --cloud-color: #4387f4;
+  --arrows-color: #80b1ff;
+  --time-animation: 1s;
+  transform: scale(0.5);
+}
+
+.loader #cloud {
+  width: 50px;
+  height: 50px;
+}
+
+.loader #cloud rect {
+  fill: var(--cloud-color);
+}
+
+.loader #cloud g:nth-child(3) {
+  transform-origin: 50% 72.8938%;
+  fill: var(--arrows-color);
+  filter: drop-shadow(0 0 8px black);
+  animation: rotation var(--time-animation) linear infinite;
+}
+
+.loader #shapes g g circle {
+  animation: cloud calc(var(--time-animation) * 2) linear infinite;
+}
+
+.loader #shapes g g circle:nth-child(2) {
+  animation-delay: calc((var(--time-animation) * 2) / -3);
+}
+
+.loader #shapes g g circle:nth-child(3) {
+  animation-delay: calc((var(--time-animation) * 2) / -1.5);
+}
+
+.loader svg #lines g line {
+  stroke-width: 5;
+  transform-origin: 50% 50%;
+  rotate: -65deg;
+  animation: lines calc(var(--time-animation) / 1.33) linear infinite;
+}
+
+@keyframes rotation {
+  0% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(180deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes lines {
+  0% {
+    transform: translateY(-10px);
+  }
+  100% {
+    transform: translateY(8px);
+  }
+}
+
+@keyframes cloud {
+  0% {
+    cx: 20;
+    cy: 60;
+    r: 15;
+  }
+  50% {
+    cx: 50;
+    cy: 45;
+    r: 20;
+  }
+  100% {
+    cx: 80;
+    cy: 60;
+    r: 15;
+  }
+}
+
+/* Theme-Aware Primary Action Button Utility */
+.btn-primary-action {
+    @apply transition-all active:scale-95 shadow-xl;
+    background-color: var(--primary);
+    color: white;
+}
+
+[data-theme="light"] .btn-primary-action {
+    background-color: rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    color: #000000 !important;
+}
+
+/* Specific tinting for Student/Admin Light Modes */
+html[data-account="student"][data-theme="light"] .btn-primary-action {
+    background-color: rgba(202, 89, 149, 0.12); /* brand-pink tint */
+    border: 1px solid rgba(202, 89, 149, 0.2);
+}
+
+html[data-account="admin"][data-theme="light"] .btn-primary-action {
+    background-color: rgba(30, 27, 75, 0.08); /* Deep Navy tint */
+    border: 1px solid rgba(30, 27, 75, 0.15);
+}
+
+/* Global SweetAlert2 Button Overrides for Light Mode */
+[data-theme="light"] .swal2-styled.swal2-confirm,
+[data-theme="light"] .swal2-styled.swal2-cancel,
+[data-theme="light"] .swal2-styled.swal2-deny {
+    color: #000000 !important;
+    font-weight: 700 !important;
+    transition: all 0.2s ease !important;
+    box-shadow: none !important;
+}
+
+[data-theme="light"] .swal2-styled.swal2-confirm {
+    background-color: rgba(0, 0, 0, 0.08) !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+}
+
+[data-theme="light"] .swal2-styled.swal2-cancel {
+    background-color: transparent !important;
+    color: #64748b !important; /* Gray-500 */
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Specific Tints for Swal Buttons */
+html[data-account="student"][data-theme="light"] .swal2-styled.swal2-confirm {
+    background-color: rgba(202, 89, 149, 0.15) !important;
+    border: 1px solid rgba(202, 89, 149, 0.2) !important;
+}
+
+html[data-account="admin"][data-theme="light"] .swal2-styled.swal2-confirm {
+    background-color: rgba(30, 27, 75, 0.08) !important;
+    border: 1px solid rgba(30, 27, 75, 0.15) !important;
+}
+
+[data-theme="light"] .swal2-popup {
+    border: 1px solid var(--border-color) !important;
+}
+
+
