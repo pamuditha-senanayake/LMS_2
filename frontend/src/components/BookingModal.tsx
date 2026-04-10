@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { X, Calendar, Clock, Users, MapPin, FileText, AlertCircle, Check } from "lucide-react";
 
 interface Resource {
@@ -32,6 +33,19 @@ interface AvailabilityResponse {
   }>;
 }
 
+interface BookingData {
+  category: string;
+  type: string;
+  location: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+  capacity: number;
+  capacityLabel: string;
+  purpose?: string;
+  quantity?: number;
+}
+
 interface BookingModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -45,9 +59,11 @@ interface BookingModalProps {
     endTime: string;
     type: string;
   };
+  prefilledData?: BookingData | null;
 }
 
-export default function BookingModal({ isOpen, onClose, onSuccess, editBooking }: BookingModalProps) {
+export default function BookingModal({ isOpen, onClose, onSuccess, editBooking, prefilledData }: BookingModalProps) {
+  const router = useRouter();
   const [resources, setResources] = useState<Resource[]>([]);
   const [selectedResource, setSelectedResource] = useState<Resource | null>(null);
   const [selectedDate, setSelectedDate] = useState<string>("");
@@ -72,6 +88,12 @@ export default function BookingModal({ isOpen, onClose, onSuccess, editBooking }
         setEndTime(editBooking.endTime.split("T")[1]?.substring(0, 5) || "10:00");
         setSelectedDate(editBooking.startTime.split("T")[0]);
         setBookingType(editBooking.type);
+      } else if (prefilledData) {
+        setSelectedDate(prefilledData.date || "");
+        setStartTime(prefilledData.startTime || "09:00");
+        setEndTime(prefilledData.endTime || "10:00");
+        setPurpose(prefilledData.purpose || "");
+        setExpectedAttendees(prefilledData.capacity || 1);
       } else {
         setSelectedResource(null);
         setPurpose("");
@@ -82,7 +104,7 @@ export default function BookingModal({ isOpen, onClose, onSuccess, editBooking }
         setBookingType("FACILITY");
       }
     }
-  }, [isOpen, editBooking]);
+  }, [isOpen, editBooking, prefilledData]);
 
   useEffect(() => {
     if (selectedResource && selectedDate) {
@@ -163,9 +185,19 @@ export default function BookingModal({ isOpen, onClose, onSuccess, editBooking }
       if (res.ok) {
         onSuccess();
         onClose();
+        router.push("/dashboard/my-bookings");
       } else {
         const errText = await res.text();
-        setError(errText || "Failed to create booking");
+        if (errText.startsWith("BOOKING_CONFLICT:")) {
+          const conflictMsg = errText.replace("BOOKING_CONFLICT:", "");
+          setError(conflictMsg);
+        } else if (errText.startsWith("RESOURCE_OUT_OF_SERVICE:")) {
+          setError(errText.replace("RESOURCE_OUT_OF_SERVICE:", ""));
+        } else if (errText.startsWith("TIME_TOO_SOON:")) {
+          setError(errText.replace("TIME_TOO_SOON:", ""));
+        } else {
+          setError(errText || "Failed to create booking");
+        }
       }
     } catch {
       setError("Network error. Please try again.");
