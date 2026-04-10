@@ -124,7 +124,7 @@ export default function Login() {
                                     />
                                 </div>
 
-                                <div className="flex flex-col gap-2">
+                                <div className="flex flex-col gap-2 relative">
                                     <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1" htmlFor="password">Security Code</label>
                                     <input
                                         id="password"
@@ -135,6 +135,14 @@ export default function Login() {
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
                                     />
+                                    <div className="flex justify-end mt-1 px-1">
+                                        <Link 
+                                            href="/forgot-password" 
+                                            className="text-[10px] font-bold text-slate-500 hover:text-primary transition-colors uppercase tracking-widest"
+                                        >
+                                            Forgot Password?
+                                        </Link>
+                                    </div>
                                 </div>
 
                                 <button

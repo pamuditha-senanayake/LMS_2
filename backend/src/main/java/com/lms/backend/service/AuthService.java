@@ -17,6 +17,8 @@ import org.springframework.stereotype.Service;
 public class AuthService {
 
         private final UserRepository userRepository;
+        private final PasswordResetTokenRepository tokenRepository;
+        private final EmailService emailService;
         private final PasswordEncoder passwordEncoder;
         private final JwtUtils jwtUtils;
         private final AuthenticationManager authenticationManager;
@@ -104,5 +106,41 @@ public class AuthService {
                 } else {
                         throw new RuntimeException("Invalid ID token.");
                 }
+        }
+
+        public void processForgotPassword(String email) {
+                var user = userRepository.findByEmail(email)
+                                .orElseThrow(() -> new RuntimeException("User not found"));
+
+                // Delete any existing tokens for this user
+                tokenRepository.deleteByEmail(email);
+
+                String token = java.util.UUID.randomUUID().toString();
+                var resetToken = com.lms.backend.model.PasswordResetToken.builder()
+                                .token(token)
+                                .email(email)
+                                .expiryDate(new java.util.Date(System.currentTimeMillis() + 3600000)) // 1 hour
+                                .build();
+                tokenRepository.save(resetToken);
+
+                emailService.sendPasswordResetEmail(email, token);
+        }
+
+        public void resetPassword(String token, String newPassword) {
+                var resetToken = tokenRepository.findByToken(token)
+                                .orElseThrow(() -> new RuntimeException("Invalid or expired token"));
+
+                if (resetToken.getExpiryDate().before(new java.util.Date())) {
+                        tokenRepository.delete(resetToken);
+                        throw new RuntimeException("Token has expired");
+                }
+
+                var user = userRepository.findByEmail(resetToken.getEmail())
+                                .orElseThrow(() -> new RuntimeException("User not found"));
+
+                user.setPassword(passwordEncoder.encode(newPassword));
+                userRepository.save(user);
+
+                tokenRepository.delete(resetToken);
         }
 }

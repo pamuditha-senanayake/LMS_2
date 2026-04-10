@@ -2,6 +2,7 @@ package com.lms.backend.controller;
 
 import com.lms.backend.dto.LoginRequest;
 import com.lms.backend.dto.RegisterRequest;
+import com.lms.backend.dto.ResetPasswordRequest;
 import com.lms.backend.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -103,6 +104,31 @@ public class AuthController {
             ));
         } catch (Exception e) {
             return ResponseEntity.status(500).body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<?> forgotPassword(@RequestBody java.util.Map<String, String> request) {
+        try {
+            String email = request.get("email");
+            if (email == null || email.isBlank()) {
+                return ResponseEntity.badRequest().body("Email is required");
+            }
+            authService.processForgotPassword(email);
+            return ResponseEntity.ok(java.util.Map.of("message", "If an account exists for " + email + ", you will receive a password reset link shortly."));
+        } catch (Exception e) {
+            // We return OK even if user not found for security reasons (email enumeration prevention)
+            return ResponseEntity.ok(java.util.Map.of("message", "If an account exists for this email, you will receive a password reset link shortly."));
+        }
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        try {
+            authService.resetPassword(request.getToken(), request.getNewPassword());
+            return ResponseEntity.ok(java.util.Map.of("message", "Password has been reset successfully."));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 }
