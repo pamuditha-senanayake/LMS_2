@@ -44,10 +44,25 @@ interface Booking {
     quantity?: number;
 }
 
+interface BookingData {
+    category: string;
+    type: string;
+    location: string;
+    date: string;
+    startTime: string;
+    endTime: string;
+    capacity: number;
+    capacityLabel: string;
+    amenities: string[];
+    purpose?: string;
+    quantity?: number;
+}
+
 interface FacilityDetailsModalProps {
     resource: Resource;
     isOpen: boolean;
     onClose: () => void;
+    prefilledData?: BookingData;
 }
 
 const formatType = (type: string): string => {
@@ -62,11 +77,27 @@ const TIME_SLOTS = [
     "13:00", "14:00", "15:00", "16:00", "17:00", "18:00"
 ];
 
+const getValidTimeSlots = (selectedDate: string): string[] => {
+    const today = new Date().toISOString().split('T')[0];
+    if (selectedDate !== today) return TIME_SLOTS;
+    
+    const currentHour = new Date().getHours();
+    const currentMinute = new Date().getMinutes();
+    const currentTimeValue = currentHour * 60 + currentMinute;
+    const bufferMinutes = 15;
+    
+    return TIME_SLOTS.filter(time => {
+        const [h, m] = time.split(':').map(Number);
+        const timeValue = h * 60 + m;
+        return timeValue > currentTimeValue + bufferMinutes;
+    });
+};
+
 const UTILITY_TYPES = [
     "PROJECTOR", "SOUND_SYSTEM", "MICROPHONE", "WHITEBOARD", "FLAGS", "OTHER"
 ];
 
-export default function FacilityDetailsModal({ resource, isOpen, onClose }: FacilityDetailsModalProps) {
+export default function FacilityDetailsModal({ resource, isOpen, onClose, prefilledData }: FacilityDetailsModalProps) {
     const router = useRouter();
     const resourceId = resource.id || resource._id;
     const resourceName = resource.resourceName || resource.name || "Unnamed Resource";
@@ -89,6 +120,17 @@ export default function FacilityDetailsModal({ resource, isOpen, onClose }: Faci
     const [supportNotes, setSupportNotes] = useState("");
     const [quantity, setQuantity] = useState<number>(1);
     const [isBooking, setIsBooking] = useState(false);
+
+    useEffect(() => {
+        if (prefilledData && isOpen) {
+            setSelectedDate(prefilledData.date || "");
+            setSelectedStartTime(prefilledData.startTime || "");
+            setSelectedEndTime(prefilledData.endTime || "");
+            setAttendees(prefilledData.capacity || 1);
+            setPurpose(prefilledData.purpose || "");
+            setQuantity(prefilledData.quantity || 1);
+        }
+    }, [prefilledData, isOpen]);
 
     const fetchBookings = useCallback(async () => {
         setLoadingBookings(true);
@@ -180,6 +222,16 @@ export default function FacilityDetailsModal({ resource, isOpen, onClose }: Faci
         return end > start;
     };
 
+    const isTimeValidForNow = (): boolean => {
+        if (!selectedDate || !selectedStartTime) return true;
+        
+        const now = new Date();
+        const selectedDateTime = new Date(`${selectedDate}T${selectedStartTime}`);
+        const minTime = new Date(now.getTime() + 15 * 60 * 1000);
+        
+        return selectedDateTime >= minTime;
+    };
+
     const canBook = isAvailable && !isOutOfService;
 
     const handleBook = async () => {
@@ -198,6 +250,11 @@ export default function FacilityDetailsModal({ resource, isOpen, onClose }: Faci
             return;
         }
 
+        if (!isTimeValidForNow()) {
+            Swal.fire("Error", "Start time must be at least 15 minutes in the future", "error");
+            return;
+        }
+
         setIsBooking(true);
         try {
             const storedUser = localStorage.getItem("user");
@@ -212,35 +269,39 @@ export default function FacilityDetailsModal({ resource, isOpen, onClose }: Faci
 
             const bookingData: any = {
                 resourceId: resourceId,
-                requestedBy: {
-                    userId: user.userId || user.id,
-                    name: user.name || user.fullName,
-                    email: user.email
-                },
+                requestedByUserId: user.userId || user.id || "",
+                requestedByName: user.name || user.fullName || user.email || "Unknown",
+                requestedByEmail: user.email || "",
                 purpose: purpose,
                 startTime: startDateTime,
                 endTime: endDateTime,
-                type: isUtility ? "UTILITY" : "FACILITY"
+                type: isUtility ? "UTILITY" : "FACILITY",
+                expectedAttendees: isUtility ? quantity : attendees,
             };
 
-            if (isUtility) {
-                bookingData.quantity = quantity;
-                bookingData.supportNotes = supportNotes;
-                bookingData.expectedAttendees = quantity;
-            } else {
-                bookingData.expectedAttendees = attendees;
-            }
-
             const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
+            console.log("Booking request to:", `${apiUrl}/api/bookings`);
+            console.log("Booking payload:", JSON.stringify(bookingData, null, 2));
+            
+            const headers: Record<string, string> = {
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+            };
+            
+            if (user && user.token) {
+                headers["Authorization"] = `Bearer ${user.token}`;
+                console.log("Added Authorization header");
+            }
+            
             const res = await fetch(`${apiUrl}/api/bookings`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: headers,
                 credentials: "include",
                 body: JSON.stringify(bookingData)
             });
 
-            console.log("Booking payload:", bookingData);
-
+            console.log("Booking response status:", res.status);
+            
             if (res.ok) {
                 await Swal.fire({
                     title: "Success!",
@@ -249,18 +310,29 @@ export default function FacilityDetailsModal({ resource, isOpen, onClose }: Faci
                     timer: 2000
                 });
                 onClose();
-                router.push("/dashboard/bookings");
-            } else if (res.status === 409) {
-                const data = await res.json();
-                Swal.fire("Error", data.message || "Time slot already booked", "error");
-            } else if (res.status === 400) {
-                const data = await res.json();
-                const errorMsg = data.errors ? Object.values(data.errors).join(", ") : data.message || "Cannot book this resource";
-                Swal.fire("Error", errorMsg, "error");
+                router.push("/dashboard/my-bookings");
             } else {
-                const data = await res.json().catch(() => ({}));
-                const errorMsg = data.errors ? Object.values(data.errors).join(", ") : "Failed to create booking";
-                Swal.fire("Error", errorMsg, "error");
+                const errorText = await res.text();
+                console.log("Booking error response:", errorText);
+                
+                if (errorText.startsWith("BOOKING_CONFLICT:")) {
+                    const conflictMsg = errorText.replace("BOOKING_CONFLICT:", "");
+                    Swal.fire("Booking Conflict", conflictMsg, "error");
+                } else if (errorText.startsWith("RESOURCE_OUT_OF_SERVICE:")) {
+                    const serviceMsg = errorText.replace("RESOURCE_OUT_OF_SERVICE:", "");
+                    Swal.fire("Resource Unavailable", serviceMsg, "error");
+                } else if (errorText.startsWith("TIME_TOO_SOON:")) {
+                    const timeMsg = errorText.replace("TIME_TOO_SOON:", "");
+                    Swal.fire("Invalid Time", timeMsg, "error");
+                } else if (res.status === 409) {
+                    Swal.fire("Booking Conflict", errorText || "This time slot is already booked. Please choose another time.", "error");
+                } else if (res.status === 400) {
+                    Swal.fire("Validation Error", errorText || "Cannot create booking. Please check your inputs.", "error");
+                } else if (res.status === 404) {
+                    Swal.fire("Not Found", errorText || "Resource not found.", "error");
+                } else {
+                    Swal.fire("Error", errorText || `Failed to create booking (${res.status})`, "error");
+                }
             }
         } catch (err) {
             console.error("Booking error", err);
@@ -409,7 +481,7 @@ export default function FacilityDetailsModal({ resource, isOpen, onClose }: Faci
                                             className="w-full px-4 py-3 bg-foreground/5 border border-border-main rounded-xl text-foreground focus:border-primary transition-all outline-none cursor-pointer"
                                         >
                                             <option value="">Select start</option>
-                                            {TIME_SLOTS.map(time => (
+                                            {getValidTimeSlots(selectedDate).map(time => (
                                                 <option key={time} value={time} disabled={Boolean(selectedDate && !isSlotAvailable(time))}>
                                                     {time} {selectedDate && !isSlotAvailable(time) ? '(Booked)' : ''}
                                                 </option>
@@ -425,7 +497,7 @@ export default function FacilityDetailsModal({ resource, isOpen, onClose }: Faci
                                             className="w-full px-4 py-3 bg-foreground/5 border border-border-main rounded-xl text-foreground focus:border-primary transition-all outline-none cursor-pointer disabled:opacity-50"
                                         >
                                             <option value="">Select end</option>
-                                            {TIME_SLOTS.filter(t => {
+                                            {getValidTimeSlots(selectedDate).filter(t => {
                                                 if (!selectedStartTime) return true;
                                                 return parseInt(t.split(':')[0]) > parseInt(selectedStartTime.split(':')[0]);
                                             }).map(time => (

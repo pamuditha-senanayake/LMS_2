@@ -19,7 +19,7 @@ export default function ThemeHandler() {
 
     const syncTheme = useCallback(() => {
         const path = window.location.pathname;
-        const isAuthPage = path === "/login" || path === "/register" || path === "/";
+        const isAuthPage = path === "/login" || path === "/register";
         
         const savedTheme = isAuthPage ? "dark" : (localStorage.getItem("theme") || "dark");
         const storedUser = localStorage.getItem("user");

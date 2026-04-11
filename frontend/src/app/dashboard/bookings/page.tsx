@@ -2,10 +2,11 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Plus, Search, Calendar, CheckCircle, XCircle, AlertCircle, ChevronLeft, ChevronRight, Eye, Trash2, Edit } from "lucide-react";
+import { Plus, Search, Calendar, CheckCircle, XCircle, AlertCircle, ChevronLeft, ChevronRight, Eye, Trash2, Edit, QrCode } from "lucide-react";
 import Swal from "sweetalert2";
 import BookingModal from "@/components/BookingModal";
 import BookingDetailsModal from "@/components/BookingDetailsModal";
+import BookingQRCodeModal from "@/components/BookingQRCodeModal";
 import { TableSkeleton } from "@/components/Skeleton";
 
 interface Booking {
@@ -59,7 +60,9 @@ export default function MyBookings() {
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [showModal, setShowModal] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [showQRCodeModal, setShowQRCodeModal] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState<string | null>(null);
+  const [qrBookingId, setQrBookingId] = useState<string | null>(null);
   const [editBooking, setEditBooking] = useState<any>(null);
   const [page, setPage] = useState(0);
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -341,6 +344,13 @@ export default function MyBookings() {
                         <td className="p-4 text-right">
                           <div className="flex justify-end gap-2">
                              <button 
+                              onClick={() => { setQrBookingId(b.id); setShowQRCodeModal(true); }}
+                              className="p-2 text-muted hover:text-primary hover:bg-foreground/5 rounded-lg transition-colors"
+                              title="Generate QR Ticket"
+                            >
+                              <QrCode size={16} />
+                            </button>
+                             <button 
                               onClick={() => { setSelectedBooking(b.id); setShowDetailsModal(true); }}
                               className="p-2 text-muted hover:text-primary hover:bg-foreground/5 rounded-lg transition-colors"
                               title="View Details"
@@ -416,6 +426,12 @@ export default function MyBookings() {
           const booking = bookings.find((b) => b.id === selectedBooking);
           if (booking) handleCancel(booking);
         }}
+      />
+
+      <BookingQRCodeModal
+        isOpen={showQRCodeModal}
+        onClose={() => { setShowQRCodeModal(false); setQrBookingId(null); }}
+        bookingId={qrBookingId}
       />
     </div>
   );

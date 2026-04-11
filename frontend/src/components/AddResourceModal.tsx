@@ -298,37 +298,49 @@ export default function AddResourceModal({ isOpen, onClose, onSuccess }: AddReso
 
     return (
         <div 
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm"
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            style={{ backgroundColor: 'rgba(2, 6, 23, 0.75)', backdropFilter: 'blur(6px)' }}
             onClick={(e) => e.target === e.currentTarget && handleClose()}
         >
-            <div className="w-full max-w-lg bg-card rounded-[2rem] shadow-2xl border border-border-main overflow-hidden max-h-[90vh] flex flex-col animate-in zoom-in-95 duration-300">
+            <div 
+                className="w-full max-w-lg rounded-2xl overflow-hidden max-h-[90vh] flex flex-col animate-in zoom-in-95 duration-300"
+                style={{ 
+                    background: 'rgba(15, 23, 42, 0.85)',
+                    borderRadius: '16px',
+                    border: '1px solid rgba(255, 255, 255, 0.08)',
+                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)'
+                }}
+            >
                 <div className="px-6 pt-6 pb-4">
                     <div className="flex items-center justify-between mb-1">
-                        <h2 className="text-xl font-black uppercase tracking-tight text-foreground">Add New Resource</h2>
+                        <h2 className="text-xl font-black uppercase tracking-tight" style={{ color: '#F8FAFC' }}>Add New Resource</h2>
                         <button
                             onClick={handleClose}
-                            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+                            className="p-1.5 rounded-lg transition-colors hover:bg-white/10"
+                            style={{ color: '#94A3B8' }}
                         >
                             <X className="w-5 h-5" />
                         </button>
                     </div>
-                    <p className="text-sm font-medium text-muted">Create a new facility or utility resource</p>
+                    <p className="text-sm font-medium" style={{ color: '#94A3B8' }}>Create a new facility or utility resource</p>
                 </div>
 
                 <div className="flex-1 overflow-y-auto px-6 pb-6 space-y-5">
                     <div className="space-y-1.5">
-                        <label className="text-xs font-medium text-slate-600 ml-0.5">Category</label>
-                        <div className="flex p-1 bg-slate-100 rounded-xl">
+                        <label className="block text-sm font-bold pb-1" style={{ color: '#E2E8F0' }}>Category</label>
+                        <div className="flex p-1 rounded-xl" style={{ backgroundColor: 'rgba(255, 255, 255, 0.08)' }}>
                             {CATEGORY_OPTIONS.map(opt => (
                                 <button
                                     key={opt.value}
                                     type="button"
                                     onClick={() => handleCategoryChange(opt.value as "FACILITY" | "UTILITY")}
-                                    className={`flex-1 py-2.5 text-sm font-bold uppercase tracking-widest rounded-lg transition-all ${
-                                        category === opt.value
-                                            ? 'bg-primary text-white shadow-lg shadow-primary/20'
-                                            : 'text-muted hover:text-foreground hover:bg-foreground/5'
-                                    }`}
+                                    className="flex-1 py-2.5 text-sm font-bold uppercase tracking-widest rounded-lg transition-all duration-300"
+                                    style={{
+                                        background: category === opt.value 
+                                            ? 'linear-gradient(135deg, #6D28D9, #7C3AED)' 
+                                            : 'transparent',
+                                        color: category === opt.value ? '#FFFFFF' : '#CBD5F5'
+                                    }}
                                 >
                                     {opt.label}
                                 </button>
@@ -338,78 +350,103 @@ export default function AddResourceModal({ isOpen, onClose, onSuccess }: AddReso
 
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-xs font-medium text-slate-600 mb-1.5 ml-0.5">Resource Name</label>
+                            <label className="block text-sm font-bold pb-1 mb-1.5" style={{ color: '#E2E8F0' }}>Resource Name</label>
                             <input
                                 type="text"
                                 value={resourceName}
                                 onChange={(e) => setResourceName(e.target.value)}
                                 placeholder={category === "FACILITY" ? "Main Auditorium" : "Epson Projector #1"}
-                                className={`w-full px-3.5 py-2.5 bg-slate-50 border rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:bg-white focus:border-slate-400 focus:ring-2 focus:ring-slate-100 transition-all outline-none ${errors.resourceName ? 'border-red-400' : 'border-slate-200'}`}
+                                className={`w-full px-3.5 py-2.5 rounded-xl text-sm transition-all outline-none ${errors.resourceName ? 'border-red-500' : ''}`}
+                                style={{
+                                    background: 'rgba(255, 255, 255, 0.05)',
+                                    border: errors.resourceName ? '1px solid #EF4444' : '1px solid rgba(255, 255, 255, 0.1)',
+                                    color: '#E2E8F0'
+                                }}
                             />
-                            {errors.resourceName && <p className="mt-1 text-xs text-red-500 ml-0.5">{errors.resourceName}</p>}
+                            {errors.resourceName && <p className="mt-1 text-xs font-medium" style={{ color: '#EF4444' }}>{errors.resourceName}</p>}
                         </div>
                         <div>
-                            <label className="block text-xs font-medium text-slate-600 mb-1.5 ml-0.5">Location</label>
+                            <label className="block text-sm font-bold pb-1 mb-1.5" style={{ color: '#E2E8F0' }}>Location</label>
                             <select
                                 value={location}
                                 onChange={(e) => setLocation(e.target.value)}
-                                className={`w-full px-3.5 py-2.5 bg-slate-50 border rounded-xl text-sm text-slate-900 focus:bg-white focus:border-slate-400 focus:ring-2 focus:ring-slate-100 transition-all outline-none cursor-pointer ${errors.location ? 'border-red-400' : 'border-slate-200'}`}
+                                className={`w-full px-3.5 py-2.5 rounded-xl text-sm transition-all outline-none cursor-pointer ${errors.location ? 'border-red-500' : ''}`}
+                                style={{
+                                    background: 'rgba(255, 255, 255, 0.05)',
+                                    border: errors.location ? '1px solid #EF4444' : '1px solid rgba(255, 255, 255, 0.1)',
+                                    color: '#E2E8F0'
+                                }}
                             >
-                                <option value="">Select</option>
+                                <option value="" style={{ color: '#94A3B8', background: '#1E293B' }}>Select</option>
                                 {LOCATION_OPTIONS.map(opt => (
-                                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                                    <option key={opt.value} value={opt.value} style={{ background: '#1E293B' }}>{opt.label}</option>
                                 ))}
                             </select>
-                            {errors.location && <p className="mt-1 text-xs text-red-500 ml-0.5">{errors.location}</p>}
+                            {errors.location && <p className="mt-1 text-xs font-medium" style={{ color: '#EF4444' }}>{errors.location}</p>}
                         </div>
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-xs font-medium text-slate-600 mb-1.5 ml-0.5">Type</label>
+                            <label className="block text-sm font-bold pb-1 mb-1.5" style={{ color: '#E2E8F0' }}>Type</label>
                             <select
                                 value={resourceType}
                                 onChange={(e) => handleTypeChange(e.target.value)}
-                                className={`w-full px-3.5 py-2.5 bg-slate-50 border rounded-xl text-sm text-slate-900 focus:bg-white focus:border-slate-400 focus:ring-2 focus:ring-slate-100 transition-all outline-none cursor-pointer ${errors.type ? 'border-red-400' : 'border-slate-200'}`}
+                                className={`w-full px-3.5 py-2.5 rounded-xl text-sm transition-all outline-none cursor-pointer ${errors.type ? 'border-red-500' : ''}`}
+                                style={{
+                                    background: 'rgba(255, 255, 255, 0.05)',
+                                    border: errors.type ? '1px solid #EF4444' : '1px solid rgba(255, 255, 255, 0.1)',
+                                    color: '#E2E8F0'
+                                }}
                             >
-                                <option value="">Select</option>
+                                <option value="" style={{ color: '#94A3B8', background: '#1E293B' }}>Select</option>
                                 {typeOptions.map(opt => (
-                                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                                    <option key={opt.value} value={opt.value} style={{ background: '#1E293B' }}>{opt.label}</option>
                                 ))}
                             </select>
-                            {errors.type && <p className="mt-1 text-xs text-red-500 ml-0.5">{errors.type}</p>}
+                            {errors.type && <p className="mt-1 text-xs font-medium" style={{ color: '#EF4444' }}>{errors.type}</p>}
                         </div>
                         <div>
-                            <label className="block text-xs font-medium text-slate-600 mb-1.5 ml-0.5">Status</label>
+                            <label className="block text-sm font-bold pb-1 mb-1.5" style={{ color: '#E2E8F0' }}>Status</label>
                             <select
                                 value={status}
                                 onChange={(e) => setStatus(e.target.value)}
-                                className={`w-full px-3.5 py-2.5 bg-slate-50 border rounded-xl text-sm text-slate-900 focus:bg-white focus:border-slate-400 focus:ring-2 focus:ring-slate-100 transition-all outline-none cursor-pointer ${errors.status ? 'border-red-400' : 'border-slate-200'}`}
+                                className={`w-full px-3.5 py-2.5 rounded-xl text-sm transition-all outline-none cursor-pointer ${errors.status ? 'border-red-500' : ''}`}
+                                style={{
+                                    background: 'rgba(255, 255, 255, 0.05)',
+                                    border: errors.status ? '1px solid #EF4444' : '1px solid rgba(255, 255, 255, 0.1)',
+                                    color: '#E2E8F0'
+                                }}
                             >
-                                <option value="">Select</option>
+                                <option value="" style={{ color: '#94A3B8', background: '#1E293B' }}>Select</option>
                                 {STATUS_OPTIONS.map(opt => (
-                                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                                    <option key={opt.value} value={opt.value} style={{ background: '#1E293B' }}>{opt.label}</option>
                                 ))}
                             </select>
-                            {errors.status && <p className="mt-1 text-xs text-red-500 ml-0.5">{errors.status}</p>}
+                            {errors.status && <p className="mt-1 text-xs font-medium" style={{ color: '#EF4444' }}>{errors.status}</p>}
                         </div>
                     </div>
 
                     {showCustomTypeField && (
                         <div>
-                            <label className="block text-xs font-medium text-slate-600 mb-1.5 ml-0.5">Specify Utility Type</label>
+                            <label className="block text-sm font-bold pb-1 mb-1.5" style={{ color: '#E2E8F0' }}>Specify Utility Type</label>
                             <input
                                 type="text"
                                 value={customUtilityType}
                                 onChange={(e) => setCustomUtilityType(e.target.value)}
                                 placeholder="e.g., Speaker Stand, Extension Cord"
-                                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:bg-white focus:border-slate-400 focus:ring-2 focus:ring-slate-100 transition-all outline-none"
+                                className="w-full px-3.5 py-2.5 rounded-xl text-sm transition-all outline-none"
+                                style={{
+                                    background: 'rgba(255, 255, 255, 0.05)',
+                                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                                    color: '#E2E8F0'
+                                }}
                             />
                         </div>
                     )}
 
                     <div>
-                        <label className="block text-xs font-medium text-slate-600 mb-1.5 ml-0.5">
+                        <label className="block text-sm font-bold pb-1 mb-1.5" style={{ color: '#E2E8F0' }}>
                             {category === "FACILITY" ? "Description" : "Notes"}
                         </label>
                         <textarea
@@ -417,7 +454,12 @@ export default function AddResourceModal({ isOpen, onClose, onSuccess }: AddReso
                             onChange={(e) => setDescription(e.target.value)}
                             rows={2}
                             placeholder={category === "FACILITY" ? "Large auditorium with AV equipment..." : "Serial number, condition, notes..."}
-                            className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:bg-white focus:border-slate-400 focus:ring-2 focus:ring-slate-100 transition-all outline-none resize-none"
+                            className="w-full px-3.5 py-2.5 rounded-xl text-sm transition-all outline-none resize-none"
+                            style={{
+                                background: 'rgba(255, 255, 255, 0.05)',
+                                border: '1px solid rgba(255, 255, 255, 0.1)',
+                                color: '#E2E8F0'
+                            }}
                         />
                     </div>
 
@@ -425,42 +467,57 @@ export default function AddResourceModal({ isOpen, onClose, onSuccess }: AddReso
                         <>
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-xs font-medium text-slate-600 mb-1.5 ml-0.5">Room Number</label>
+                                    <label className="block text-sm font-bold pb-1 mb-1.5" style={{ color: '#E2E8F0' }}>Room Number</label>
                                     <input
                                         type="text"
                                         value={roomNumber}
                                         onChange={(e) => setRoomNumber(e.target.value)}
                                         placeholder="A-101"
-                                        className={`w-full px-3.5 py-2.5 bg-slate-50 border rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:bg-white focus:border-slate-400 focus:ring-2 focus:ring-slate-100 transition-all outline-none ${errors.roomNumber ? 'border-red-400' : 'border-slate-200'}`}
+                                        className={`w-full px-3.5 py-2.5 rounded-xl text-sm transition-all outline-none ${errors.roomNumber ? 'border-red-500' : ''}`}
+                                        style={{
+                                            background: 'rgba(255, 255, 255, 0.05)',
+                                            border: errors.roomNumber ? '1px solid #EF4444' : '1px solid rgba(255, 255, 255, 0.1)',
+                                            color: '#E2E8F0'
+                                        }}
                                     />
-                                    {errors.roomNumber && <p className="mt-1 text-xs text-red-500 ml-0.5">{errors.roomNumber}</p>}
+                                    {errors.roomNumber && <p className="mt-1 text-xs font-medium" style={{ color: '#EF4444' }}>{errors.roomNumber}</p>}
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-medium text-slate-600 mb-1.5 ml-0.5">Capacity</label>
+                                    <label className="block text-sm font-bold pb-1 mb-1.5" style={{ color: '#E2E8F0' }}>Capacity</label>
                                     <input
                                         type="number"
                                         value={capacity}
                                         onChange={(e) => handleCapacityChange(e.target.value)}
                                         placeholder="50"
                                         min="0"
-                                        className={`w-full px-3.5 py-2.5 bg-slate-50 border rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:bg-white focus:border-slate-400 focus:ring-2 focus:ring-slate-100 transition-all outline-none ${errors.capacity ? 'border-red-400' : 'border-slate-200'}`}
+                                        className={`w-full px-3.5 py-2.5 rounded-xl text-sm transition-all outline-none ${errors.capacity ? 'border-red-500' : ''}`}
+                                        style={{
+                                            background: 'rgba(255, 255, 255, 0.05)',
+                                            border: errors.capacity ? '1px solid #EF4444' : '1px solid rgba(255, 255, 255, 0.1)',
+                                            color: '#E2E8F0'
+                                        }}
                                     />
-                                    {errors.capacity && <p className="mt-1 text-xs text-red-500 ml-0.5">{errors.capacity}</p>}
+                                    {errors.capacity && <p className="mt-1 text-xs font-medium" style={{ color: '#EF4444' }}>{errors.capacity}</p>}
                                 </div>
                             </div>
                             <div>
-                                <label className="block text-xs font-medium text-slate-600 mb-2 ml-0.5">Amenities</label>
+                                <label className="block text-sm font-bold pb-1 mb-2" style={{ color: '#E2E8F0' }}>Amenities</label>
                                 <div className="flex flex-wrap gap-2">
                                     {AMENITY_OPTIONS.map(amenity => (
                                         <button
                                             key={amenity.value}
                                             type="button"
                                             onClick={() => toggleAmenity(amenity.value)}
-                                            className={`px-3 py-1.5 text-xs font-medium rounded-lg border transition-all ${
-                                                selectedAmenities.includes(amenity.value)
-                                                    ? 'bg-slate-800 border-slate-800 text-white'
-                                                    : 'bg-white border-slate-200 text-slate-600 hover:border-slate-400'
-                                            }`}
+                                            className="px-3 py-1.5 text-sm font-bold rounded-lg transition-all"
+                                            style={{
+                                                background: selectedAmenities.includes(amenity.value) 
+                                                    ? 'linear-gradient(135deg, #6D28D9, #7C3AED)' 
+                                                    : 'transparent',
+                                                border: selectedAmenities.includes(amenity.value) 
+                                                    ? '1px solid transparent' 
+                                                    : '1px solid rgba(255, 255, 255, 0.1)',
+                                                color: selectedAmenities.includes(amenity.value) ? '#FFFFFF' : '#CBD5F5'
+                                            }}
                                         >
                                             {amenity.label}
                                         </button>
@@ -470,30 +527,45 @@ export default function AddResourceModal({ isOpen, onClose, onSuccess }: AddReso
                         </>
                     ) : (
                         <div>
-                            <label className="block text-xs font-medium text-slate-600 mb-1.5 ml-0.5">Serial Number</label>
+                            <label className="block text-sm font-bold pb-1 mb-1.5" style={{ color: '#E2E8F0' }}>Serial Number</label>
                             <input
                                 type="text"
                                 value={serialNumber}
                                 onChange={(e) => setSerialNumber(e.target.value)}
                                 placeholder="SN-12345"
-                                className={`w-full px-3.5 py-2.5 bg-slate-50 border rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:bg-white focus:border-slate-400 focus:ring-2 focus:ring-slate-100 transition-all outline-none ${errors.serialNumber ? 'border-red-400' : 'border-slate-200'}`}
+                                className={`w-full px-3.5 py-2.5 rounded-xl text-sm transition-all outline-none ${errors.serialNumber ? 'border-red-500' : ''}`}
+                                style={{
+                                    background: 'rgba(255, 255, 255, 0.05)',
+                                    border: errors.serialNumber ? '1px solid #EF4444' : '1px solid rgba(255, 255, 255, 0.1)',
+                                    color: '#E2E8F0'
+                                }}
                             />
-                            {errors.serialNumber && <p className="mt-1 text-xs text-red-500 ml-0.5">{errors.serialNumber}</p>}
+                            {errors.serialNumber && <p className="mt-1 text-xs font-medium" style={{ color: '#EF4444' }}>{errors.serialNumber}</p>}
                         </div>
                     )}
                 </div>
 
-                <div className="flex items-center justify-end gap-3 px-6 py-5 border-t border-border-main bg-foreground/[0.02]">
+                <div className="flex items-center justify-end gap-3 px-6 py-5" style={{ borderTop: '1px solid rgba(255, 255, 255, 0.08)' }}>
                     <button
                         onClick={handleClose}
-                        className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 bg-white border border-slate-200 hover:border-slate-300 rounded-xl transition-all"
+                        className="px-4 py-2 text-sm font-bold rounded-xl transition-all"
+                        style={{ 
+                            background: 'rgba(255, 255, 255, 0.08)', 
+                            border: '1px solid rgba(255, 255, 255, 0.1)',
+                            color: '#CBD5F5' 
+                        }}
                     >
                         Cancel
                     </button>
                     <button
                         onClick={handleSubmit}
                         disabled={isSubmitting || !isValid}
-                        className="px-8 py-2.5 text-sm font-black uppercase tracking-widest text-white bg-primary hover:bg-primary-dark rounded-xl transition-all shadow-xl shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
+                        className="px-8 py-2.5 text-sm font-black uppercase tracking-widest rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
+                        style={{ 
+                            background: 'linear-gradient(135deg, #6D28D9, #7C3AED)',
+                            color: '#FFFFFF',
+                            boxShadow: '0 4px 15px rgba(124, 58, 237, 0.3)'
+                        }}
                     >
                         {isSubmitting ? "Adding..." : "Add Resource"}
                     </button>

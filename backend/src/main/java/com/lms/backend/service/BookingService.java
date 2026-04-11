@@ -209,16 +209,20 @@ public class BookingService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Resource not found"));
 
         if (resource.getStatus() == ResourceStatus.OUT_OF_SERVICE) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Resource is out of service");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "RESOURCE_OUT_OF_SERVICE:This resource is currently out of service");
         }
 
         List<Booking> conflicts = bookingRepository.findConflictingBookings(
                 request.getResourceId(), request.getStartTime(), request.getEndTime());
         
         if (!conflicts.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, 
-                    "Resource is already booked during this time range. Conflict with: " + 
-                    conflicts.get(0).getPurpose());
+            Booking conflictingBooking = conflicts.get(0);
+            String conflictMessage = String.format("BOOKING_CONFLICT:%s is already booked from %s to %s. It will be free after %s.",
+                    resource.getResourceName(),
+                    conflictingBooking.getStartTime().toLocalTime().toString(),
+                    conflictingBooking.getEndTime().toLocalTime().toString(),
+                    conflictingBooking.getEndTime().toLocalTime().toString());
+            throw new ResponseStatusException(HttpStatus.CONFLICT, conflictMessage);
         }
 
         Booking booking = Booking.builder()
@@ -360,14 +364,24 @@ public class BookingService {
         if (request.getPurpose() == null || request.getPurpose().trim().isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Purpose must not be empty");
         }
-        if (request.getExpectedAttendees() != null && request.getExpectedAttendees() < 1) {
+        if (request.getExpectedAttendees() == null || request.getExpectedAttendees() < 1) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Expected attendees must be at least 1");
         }
         if (!request.getStartTime().isBefore(request.getEndTime())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Start time must be before end time");
         }
-        if (request.getStartTime().isBefore(LocalDateTime.now())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Start time cannot be in the past");
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime minAllowedTime = now.plusMinutes(15);
+        if (request.getStartTime().isBefore(minAllowedTime)) {
+            LocalDate requestDate = request.getStartTime().toLocalDate();
+            LocalDate today = now.toLocalDate();
+            if (requestDate.equals(today)) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "TIME_TOO_SOON:For today, please select a time at least 15 minutes in the future");
+            } else if (requestDate.isBefore(today)) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "TIME_TOO_SOON:Cannot book for a past date");
+            } else {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "TIME_TOO_SOON:Start time must be in the future");
+            }
         }
     }
 

@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import Swal from "sweetalert2";
-import { X, Upload, AlertTriangle, MapPin, Type, FileText, Zap, Image as ImageIcon, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
+import { X, Upload, AlertTriangle, MapPin, Type, FileText, Zap, Image as ImageIcon, Loader2, CheckCircle2, AlertCircle, Star } from "lucide-react";
+import RatingComponent from "@/components/RatingComponent";
 
 export default function TicketingPage() {
     const [tickets, setTickets] = useState<any[]>([]);
@@ -25,10 +26,11 @@ export default function TicketingPage() {
     const [submitting, setSubmitting] = useState(false);
     const [selectedImages, setSelectedImages] = useState<File[]>([]);
     const [imagePreviews, setImagePreviews] = useState<string[]>([]);
-    const [currentBgIndex, setCurrentBgIndex] = useState(0);
     const [resources, setResources] = useState<any[]>([]);
     const [reportResource, setReportResource] = useState('other');
     const [reportOtherResource, setReportOtherResource] = useState('');
+    const [showRatingModal, setShowRatingModal] = useState(false);
+    const [ratingTicket, setRatingTicket] = useState<any>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
@@ -44,11 +46,22 @@ export default function TicketingPage() {
                 const ticketsWithAttachments = await Promise.all(
                     sortedTickets.map(async (ticket: any) => {
                         const attRes = await fetch(`${apiUrl}/api/tickets/${ticket.id}/attachments`, { credentials: "include" });
+                        let rating = null;
+                        if (ticket.status === 'RESOLVED' || ticket.status === 'CLOSED') {
+                            try {
+                                const ratingRes = await fetch(`${apiUrl}/api/tickets/${ticket.id}/rating?userId=${userId}`, { credentials: "include" });
+                                if (ratingRes.ok) {
+                                    rating = await ratingRes.json();
+                                }
+                            } catch {
+                                console.error("Failed to fetch rating");
+                            }
+                        }
                         if (attRes.ok) {
                             const attachments = await attRes.json();
-                            return { ...ticket, attachments };
+                            return { ...ticket, attachments, userRating: rating };
                         }
-                        return { ...ticket, attachments: [] };
+                        return { ...ticket, attachments: [], userRating: rating };
                     })
                 );
 
@@ -872,6 +885,77 @@ export default function TicketingPage() {
                                         </div>
                                     )}
 
+                                    {(ticket.status === 'RESOLVED' || ticket.status === 'CLOSED') && (
+                                        <div className="mt-4 pt-4 border-t border-border-main/50">
+                                            {ticket.userRating ? (
+                                                <div className="space-y-3">
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="text-xs font-bold text-muted uppercase tracking-widest">Your Rating:</span>
+                                                        <div className="flex gap-0.5">
+                                                            {[1, 2, 3, 4, 5].map((star) => (
+                                                                <Star
+                                                                    key={star}
+                                                                    size={16}
+                                                                    className={`${star <= ticket.userRating.rating ? "fill-yellow-400 text-yellow-400" : "text-slate-600"}`}
+                                                                />
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                    {ticket.userRating.feedback && (
+                                                        <button
+                                                            onClick={() => {
+                                                                Swal.fire({
+                                                                    title: "Your Feedback",
+                                                                    html: `
+                                                                        <div class="text-left">
+                                                                            <div class="flex items-center gap-2 mb-4">
+                                                                                <div class="flex gap-0.5">
+                                                                                    ${[1, 2, 3, 4, 5].map((star) => `
+                                                                                        <span style="font-size: 20px; color: ${star <= ticket.userRating.rating ? '#fbbf24' : '#475569'};">★</span>
+                                                                                    `).join('')}
+                                                                                </div>
+                                                                                <span class="text-sm text-yellow-400 font-bold">${ticket.userRating.rating}/5</span>
+                                                                            </div>
+                                                                            <div class="p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-xl">
+                                                                                <p class="text-sm text-foreground italic">"${ticket.userRating.feedback}"</p>
+                                                                            </div>
+                                                                            ${ticket.userRating.createdAt ? `
+                                                                                <p class="text-xs text-muted mt-3 text-center">Submitted on ${new Date(ticket.userRating.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                                                                            ` : ''}
+                                                                        </div>
+                                                                    `,
+                                                                    background: 'var(--card-bg)',
+                                                                    color: 'var(--foreground)',
+                                                                    confirmButtonColor: 'var(--primary)',
+                                                                    confirmButtonText: 'Close',
+                                                                    customClass: {
+                                                                        popup: 'glass-card border-none rounded-[2rem]',
+                                                                        title: 'text-2xl font-black text-foreground',
+                                                                    }
+                                                                });
+                                                            }}
+                                                            className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm font-bold bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-500 rounded-xl transition-all border border-yellow-500/20"
+                                                        >
+                                                            <Star size={14} className="fill-yellow-400" />
+                                                            View Feedback
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            ) : (
+                                                <button
+                                                    onClick={() => {
+                                                        setRatingTicket(ticket);
+                                                        setShowRatingModal(true);
+                                                    }}
+                                                    className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm font-bold bg-gradient-to-r from-yellow-400/20 to-orange-400/20 hover:from-yellow-400/30 hover:to-orange-400/30 text-yellow-500 rounded-xl transition-all border border-yellow-400/20"
+                                                >
+                                                    <Star size={16} className="fill-yellow-400" />
+                                                    Rate This Resolution
+                                                </button>
+                                            )}
+                                        </div>
+                                    )}
+
                                     {ticket.status === 'OPEN' && (
                                         <div className="flex gap-2 mt-4 pt-4 border-t border-border-main/50">
                                             <button
@@ -894,6 +978,57 @@ export default function TicketingPage() {
                     </div>
                 )}
             </div>
+
+            {showRatingModal && ratingTicket && (
+                <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+                    <div
+                        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                        onClick={() => setShowRatingModal(false)}
+                    />
+                    <div className="relative w-full max-w-md bg-card rounded-3xl border border-border-main shadow-2xl overflow-hidden">
+                        <div className="absolute inset-0 bg-gradient-to-br from-yellow-400/10 via-transparent to-orange-400/10" />
+                        <div className="relative p-6">
+                            <div className="flex items-center justify-between mb-6">
+                                <div className="flex items-center gap-3">
+                                    <div className="p-3 bg-yellow-400/10 rounded-xl border border-yellow-400/20">
+                                        <Star size={24} className="text-yellow-400 fill-yellow-400" />
+                                    </div>
+                                    <div>
+                                        <h2 className="text-xl font-bold text-foreground">Rate Your Experience</h2>
+                                        <p className="text-xs text-muted">How was your ticket resolved?</p>
+                                    </div>
+                                </div>
+                                <button
+                                    onClick={() => setShowRatingModal(false)}
+                                    className="p-2 hover:bg-foreground/5 rounded-xl transition-colors"
+                                >
+                                    <X size={20} className="text-muted" />
+                                </button>
+                            </div>
+
+                            <div className="mb-4 p-3 bg-foreground/5 rounded-xl">
+                                <div className="text-xs font-mono text-muted mb-1">Ticket #{ratingTicket.id?.substring(0, 6).toUpperCase()}</div>
+                                <h3 className="text-sm font-bold text-foreground">{ratingTicket.title}</h3>
+                                {ratingTicket.resolutionNotes && (
+                                    <p className="text-xs text-muted mt-1">{ratingTicket.resolutionNotes}</p>
+                                )}
+                            </div>
+
+                            <RatingComponent
+                                ticketId={ratingTicket.id}
+                                userId={currentUser?.id}
+                                currentRating={ratingTicket.userRating?.rating || 0}
+                                currentFeedback={ratingTicket.userRating?.feedback || ""}
+                                apiUrl={apiUrl}
+                                onRatingSubmitted={() => {
+                                    setShowRatingModal(false);
+                                    fetchTickets(currentUser!.id);
+                                }}
+                            />
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

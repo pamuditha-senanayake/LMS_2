@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback, useRef } from "react";
 import Swal from "sweetalert2";
-import { Activity } from "lucide-react";
+import { Activity, Star } from "lucide-react";
 
 export default function AdminTickets() {
     const [tickets, setTickets] = useState<any[]>([]);
@@ -43,12 +43,26 @@ export default function AdminTickets() {
                     sortedTickets.map(async (ticket: any) => {
                         const attRes = await fetch(`${apiUrl}/api/tickets/${ticket.id}/attachments`, { credentials: "include" });
                         const resourceDisplay = currentResources.find((r: any) => r.id === ticket.resourceId);
+                        
+                        let ticketRating = null;
+                        if ((ticket.status === 'RESOLVED' || ticket.status === 'CLOSED') && ticket.reportedById) {
+                            try {
+                                const ratingRes = await fetch(`${apiUrl}/api/tickets/${ticket.id}/rating?userId=${ticket.reportedById}`, { credentials: "include" });
+                                if (ratingRes.ok) {
+                                    ticketRating = await ratingRes.json();
+                                }
+                            } catch {
+                                console.error("Failed to fetch rating");
+                            }
+                        }
+                        
                         return { 
                             ...ticket, 
                             attachments: attRes.ok ? await attRes.json() : [],
                             resourceDisplay: resourceDisplay 
                                 ? `${resourceDisplay.resourceCode} - ${resourceDisplay.resourceName}` 
-                                : ticket.resourceId || 'General'
+                                : ticket.resourceId || 'General',
+                            hasFeedback: ticketRating?.feedback ? true : false
                         };
                     })
                 );
@@ -193,7 +207,104 @@ export default function AdminTickets() {
         });
     };
 
-    const handleViewDetails = (ticket: any) => {
+    const handleViewFeedback = async (ticket: any) => {
+        try {
+            const ratingRes = await fetch(`${apiUrl}/api/tickets/${ticket.id}/rating?userId=${ticket.reportedById}`, { credentials: "include" });
+            if (ratingRes.ok) {
+                const rating = await ratingRes.json();
+                Swal.fire({
+                    title: "User Feedback",
+                    html: `
+                        <div class="text-left">
+                            <div class="mb-4">
+                                <span class="text-xs font-bold text-muted uppercase tracking-widest">Ticket #${ticket.id?.substring(0, 6).toUpperCase()}</span>
+                                <h3 class="text-lg font-bold text-foreground mt-1">${ticket.title}</h3>
+                            </div>
+                            <div class="p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-xl mb-4">
+                                <div class="flex items-center gap-2 mb-3">
+                                    <div class="flex gap-0.5">
+                                        ${[1, 2, 3, 4, 5].map((star) => `
+                                            <span style="font-size: 20px; color: ${star <= rating.rating ? '#fbbf24' : '#475569'};">★</span>
+                                        `).join('')}
+                                    </div>
+                                    <span class="text-sm text-yellow-400 font-bold ml-2">${rating.rating}/5</span>
+                                </div>
+                                ${rating.feedback ? `
+                                    <div class="p-3 bg-card rounded-lg">
+                                        <p class="text-sm text-foreground italic">"${rating.feedback}"</p>
+                                    </div>
+                                ` : '<p class="text-sm text-muted italic">No feedback text provided</p>'}
+                            </div>
+                            ${rating.createdAt ? `
+                                <p class="text-xs text-muted text-center">Submitted on ${new Date(rating.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                            ` : ''}
+                        </div>
+                    `,
+                    width: '500px',
+                    background: 'var(--card-bg)',
+                    color: 'var(--foreground)',
+                    confirmButtonColor: 'var(--primary)',
+                    confirmButtonText: 'Close',
+                    customClass: {
+                        popup: 'glass-card border-none rounded-[2rem]',
+                        title: 'text-2xl font-black text-foreground',
+                        htmlContainer: 'text-left',
+                        confirmButton: 'px-8 py-3 rounded-xl font-bold uppercase tracking-widest text-xs'
+                    }
+                });
+            } else {
+                Swal.fire({
+                    title: "No Feedback",
+                    text: "This ticket has not been rated yet.",
+                    icon: "info",
+                    background: 'var(--card-bg)',
+                    color: 'var(--foreground)',
+                    customClass: { popup: 'glass-card border-none rounded-[2rem]' }
+                });
+            }
+        } catch {
+            Swal.fire({
+                title: "Error",
+                text: "Failed to load feedback.",
+                icon: "error",
+                background: 'var(--card-bg)',
+                color: 'var(--foreground)',
+                customClass: { popup: 'glass-card border-none rounded-[2rem]' }
+            });
+        }
+    };
+
+    const handleViewDetails = async (ticket: any) => {
+        let ratingHtml = '<div class="mt-4 p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-lg text-center text-xs text-yellow-300">No rating submitted yet</div>';
+        
+        if (ticket.status === 'RESOLVED' || ticket.status === 'CLOSED') {
+            try {
+                const ratingRes = await fetch(`${apiUrl}/api/tickets/${ticket.id}/rating?userId=${ticket.reportedById}`, { credentials: "include" });
+                if (ratingRes.ok) {
+                    const rating = await ratingRes.json();
+                    const stars = Array(5).fill(0).map((_, i) => 
+                        `<span style="color: ${i < rating.rating ? '#fbbf24' : '#475569'}; font-size: 18px;">★</span>`
+                    ).join('');
+                    
+                    ratingHtml = `
+                        <div class="mt-4">
+                            <h4 class="text-xs font-bold text-muted uppercase tracking-widest mb-2">User Rating</h4>
+                            <div class="p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
+                                <div class="flex items-center justify-between mb-2">
+                                    <div class="flex gap-0.5">${stars}</div>
+                                    <span class="text-xs text-yellow-400 font-bold">${rating.rating}/5</span>
+                                </div>
+                                ${rating.feedback ? `<p class="text-xs text-muted italic">"${rating.feedback}"</p>` : '<p class="text-xs text-muted italic">No feedback provided</p>'}
+                                ${rating.createdAt ? `<p class="text-[10px] text-muted/50 mt-2">Submitted: ${new Date(rating.createdAt).toLocaleDateString()}</p>` : ''}
+                            </div>
+                        </div>
+                    `;
+                }
+            } catch {
+                ratingHtml = '<div class="mt-4 p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-lg text-center text-xs text-yellow-300">No rating submitted yet</div>';
+            }
+        }
+
         const attachmentsHtml = ticket.attachments?.length > 0
             ? `
                 <div class="mt-4">
@@ -248,9 +359,10 @@ export default function AdminTickets() {
                             <span class="font-bold">Resolution:</span> ${ticket.resolutionNotes}
                         </div>
                     ` : ''}
+                    ${ratingHtml}
                 </div>
             `,
-            width: '600px',
+            width: '650px',
             background: 'var(--card-bg)',
             color: 'var(--foreground)',
             confirmButtonColor: 'var(--primary)',
@@ -431,17 +543,17 @@ export default function AdminTickets() {
                                     </tr>
                                 ) : (
                                     filteredTickets.map((t) => (
-                                        <tr key={t.id} className={`border-b border-border-main/50 hover:bg-foreground/5 transition-colors ${isOverdue(t) ? 'bg-rose-500/5' : ''}`}>
+                                        <tr key={t.id} className={`border-b border-border-main/50 hover:bg-foreground/5 transition-colors ${isOverdue(t) ? '!bg-red-500/10 !border-l-4 !border-l-red-500' : ''}`}>
                                             <td className="p-4">
                                                 <div className="flex items-center gap-2">
-                                                    <div className="font-semibold text-foreground">{t.title}</div>
+                                                    <div className={`font-semibold ${isOverdue(t) ? 'text-red-400' : 'text-foreground'}`}>{t.title}</div>
                                                     {isOverdue(t) && (
-                                                        <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-rose-500/20 text-rose-500 border border-rose-500/30">
-                                                            OVERDUE
+                                                        <span className="text-[10px] font-black px-3 py-1 rounded-full bg-red-500 text-white border border-red-400 animate-pulse shadow-lg shadow-red-500/30">
+                                                            ⚠ OVERDUE
                                                         </span>
                                                     )}
                                                 </div>
-                                                <div className="text-sm text-muted mt-1 line-clamp-2">{t.description}</div>
+                                                <div className={`text-sm mt-1 line-clamp-2 ${isOverdue(t) ? 'text-red-300/80' : 'text-muted'}`}>{t.description}</div>
                                                 <div className="text-xs text-primary mt-2 font-mono">Resource: {t.resourceDisplay || 'General'}</div>
                                                 {t.attachments && t.attachments.length > 0 && (
                                                     <div className="flex gap-1 mt-2">
@@ -490,6 +602,15 @@ export default function AdminTickets() {
                                                     >
                                                         View
                                                     </button>
+                                                    {(t.status === "RESOLVED" || t.status === "CLOSED") && t.hasFeedback && (
+                                                        <button 
+                                                            onClick={() => handleViewFeedback(t)}
+                                                            className="px-3 py-1.5 text-xs font-medium bg-yellow-500/20 hover:bg-yellow-500 hover:text-white text-yellow-500 rounded-lg transition-colors flex items-center gap-1"
+                                                        >
+                                                            <Star size={12} className="fill-yellow-500" />
+                                                            Feedback
+                                                        </button>
+                                                    )}
                                                     {(t.status === "OPEN" || t.status === "PENDING" || !t.status) ? (
                                                         <>
                                                             <button 
