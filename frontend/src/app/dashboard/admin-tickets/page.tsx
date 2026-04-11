@@ -140,9 +140,9 @@ export default function AdminTickets() {
                 Swal.fire({ 
                     title: "Updated!", 
                     icon: "success", 
-                    background: 'var(--card-bg)', 
-                    color: 'var(--foreground)',
-                    customClass: { popup: 'glass-card border-none rounded-[2rem]' }
+                    background: '#1e293b', 
+                    color: '#fff',
+                    customClass: { popup: 'rounded-2xl' }
                 });
                 fetchTickets();
             } else {

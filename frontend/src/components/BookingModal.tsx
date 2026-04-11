@@ -114,6 +114,15 @@ export default function BookingModal({ isOpen, onClose, onSuccess, editBooking }
       if (res.ok) {
         const data = await res.json();
         setAvailability(data);
+        const availableSlots = data.availableSlots || [];
+        const firstAvailable = availableSlots.find((slot: AvailabilitySlot) => slot.available);
+        if (firstAvailable) {
+          setStartTime(firstAvailable.startTime);
+          const endSlot = availableSlots.find((slot: AvailabilitySlot) => slot.startTime > firstAvailable.startTime);
+          if (endSlot) {
+            setEndTime(endSlot.startTime);
+          }
+        }
       }
     } catch {
       // Silently fail for availability
@@ -165,7 +174,17 @@ export default function BookingModal({ isOpen, onClose, onSuccess, editBooking }
         onClose();
       } else {
         const errText = await res.text();
-        setError(errText || "Failed to create booking");
+        try {
+          const errJson = JSON.parse(errText);
+          if (errJson.message) {
+            const match = errJson.message.match(/"([^"]+)"$/);
+            setError(match ? match[1] : errJson.message);
+          } else {
+            setError("Failed to create booking");
+          }
+        } catch {
+          setError(errText || "Failed to create booking");
+        }
       }
     } catch {
       setError("Network error. Please try again.");
@@ -203,13 +222,6 @@ export default function BookingModal({ isOpen, onClose, onSuccess, editBooking }
         </div>
 
         <div className="p-6 space-y-5">
-          {error && (
-            <div className="flex items-center gap-3 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400">
-              <AlertCircle size={20} />
-              <span>{error}</span>
-            </div>
-          )}
-
           <div>
             <label className="flex items-center gap-2 text-sm font-medium text-slate-300 mb-2">
               <MapPin size={16} />
@@ -221,6 +233,8 @@ export default function BookingModal({ isOpen, onClose, onSuccess, editBooking }
                 const resource = resources.find((r) => r.id === e.target.value);
                 setSelectedResource(resource || null);
                 setAvailability(null);
+                setStartTime("09:00");
+                setEndTime("10:00");
               }}
               className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-xl text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
               disabled={!!editBooking}
@@ -268,24 +282,33 @@ export default function BookingModal({ isOpen, onClose, onSuccess, editBooking }
               <input
                 type="date"
                 value={selectedDate}
-                onChange={(e) => setSelectedDate(e.target.value)}
+                onChange={(e) => {
+                  setSelectedDate(e.target.value);
+                  setStartTime("09:00");
+                  setEndTime("10:00");
+                }}
                 min={new Date().toISOString().split("T")[0]}
                 className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-xl text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
               />
             </div>
             <div>
               <label className="flex items-center gap-2 text-sm font-medium text-slate-300 mb-2">
-                Type
+                <Users size={16} />
+                Expected Attendees
               </label>
-              <select
-                value={bookingType}
-                onChange={(e) => setBookingType(e.target.value)}
+              <input
+                type="number"
+                value={expectedAttendees}
+                onChange={(e) => setExpectedAttendees(Math.max(1, parseInt(e.target.value) || 1))}
+                min={1}
+                max={selectedResource?.capacity || 100}
                 className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-xl text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-              >
-                <option value="FACILITY">Facility</option>
-                <option value="EQUIPMENT">Equipment</option>
-                <option value="LAB">Lab</option>
-              </select>
+              />
+              {selectedResource && (
+                <p className="text-xs text-slate-400 mt-1">
+                  Max: {selectedResource.capacity}
+                </p>
+              )}
             </div>
           </div>
 
@@ -323,14 +346,14 @@ export default function BookingModal({ isOpen, onClose, onSuccess, editBooking }
                     className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-xl text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                   >
                     {getTimeSlots()
-                      .filter((slot) => slot.startTime > startTime || slot.available)
+                      .filter((slot) => slot.startTime > startTime)
                       .map((slot) => (
                         <option
                           key={slot.startTime}
-                          value={slot.startTime}
-                          disabled={slot.startTime <= startTime}
+                          value={slot.endTime}
+                          disabled={!slot.available}
                         >
-                          {slot.endTime}
+                          {slot.endTime} {!slot.available && "- Unavailable"}
                         </option>
                       ))}
                   </select>
@@ -367,28 +390,16 @@ export default function BookingModal({ isOpen, onClose, onSuccess, editBooking }
             />
           </div>
 
-          <div>
-            <label className="flex items-center gap-2 text-sm font-medium text-slate-300 mb-2">
-              <Users size={16} />
-              Expected Attendees
-            </label>
-            <input
-              type="number"
-              value={expectedAttendees}
-              onChange={(e) => setExpectedAttendees(Math.max(1, parseInt(e.target.value) || 1))}
-              min={1}
-              max={selectedResource?.capacity || 100}
-              className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-xl text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-            />
-            {selectedResource && (
-              <p className="text-xs text-slate-400 mt-1">
-                Maximum capacity: {selectedResource.capacity}
-              </p>
-            )}
-          </div>
         </div>
 
-        <div className="sticky bottom-0 flex items-center justify-end gap-3 p-6 border-t border-slate-700 bg-slate-900 rounded-b-2xl">
+        <div className="sticky bottom-0 p-6 border-t border-slate-700 bg-slate-900 rounded-b-2xl">
+          {error && (
+            <div className="flex items-center gap-3 p-3 mb-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-sm">
+              <AlertCircle size={16} />
+              <span>{error}</span>
+            </div>
+          )}
+          <div className="flex items-center justify-end gap-3">
           <button
             onClick={onClose}
             className="px-6 py-2.5 text-slate-300 hover:text-white hover:bg-slate-800 rounded-xl transition-colors"
@@ -427,6 +438,7 @@ export default function BookingModal({ isOpen, onClose, onSuccess, editBooking }
               </>
             )}
           </button>
+          </div>
         </div>
       </div>
     </div>
