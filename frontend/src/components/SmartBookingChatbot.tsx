@@ -584,566 +584,142 @@ const generateMessageId = (): string => {
 
 export default function SmartBookingChatbot({ isOpen, onClose, onViewResource, onBookResource, resources }: SmartBookingChatbotProps) {
     const [messages, setMessages] = useState<ChatMessage[]>([]);
-    const [currentStep, setCurrentStep] = useState<BookingStep>("welcome");
-    const [bookingData, setBookingData] = useState<BookingData>({
-        category: "",
-        type: "",
-        location: "",
-        date: "",
-        startTime: "",
-        endTime: "",
-        capacity: 0,
-        capacityLabel: "",
-    });
-    const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
     const [isTyping, setIsTyping] = useState(false);
-    const [timeError, setTimeError] = useState<string | null>(null);
+    const [input, setInput] = useState("");
     const [conversationStarted, setConversationStarted] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
-    const bookingDataRef = useRef(bookingData);
-    
-    useEffect(() => {
-        bookingDataRef.current = bookingData;
-    }, [bookingData]);
-    
-    const locationOptions = useMemo(() => getLocationsFromResources(resources), [resources]);
+
+    const generateMessageId = () => Math.random().toString(36).substring(7);
+
+    const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    };
 
     useEffect(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+        scrollToBottom();
     }, [messages, isTyping]);
 
-    const startConversation = useCallback(() => {
-        const welcomeMsg: ChatMessage = {
-            id: generateMessageId(),
-            text: "Hi, I'm FitFinder 👋\n\nI help you find the best-fit facility for your needs.",
-            sender: "bot",
-            timestamp: new Date(),
-        };
-        
-        const categoryMsg: ChatMessage = {
-            id: generateMessageId(),
-            text: "What would you like to book?",
-            sender: "bot",
-            timestamp: new Date(),
-            options: [
-                { label: "Facilities", value: "FACILITY", description: "Rooms, halls, labs" },
-                { label: "Utilities", value: "UTILITY", description: "Equipment, AV systems" },
-            ],
-        };
-        
-        setMessages([welcomeMsg, categoryMsg]);
-        setCurrentStep("category");
-        setBookingData({ category: "", type: "", location: "", date: "", startTime: "", endTime: "", capacity: 0, capacityLabel: "", amenities: [] });
-        setSelectedAmenities([]);
-        setTimeError(null);
-        setConversationStarted(true);
-    }, []);
-
-    const resetConversation = useCallback(() => {
-        setMessages([]);
-        setCurrentStep("welcome");
-        setBookingData({ category: "", type: "", location: "", date: "", startTime: "", endTime: "", capacity: 0, capacityLabel: "", amenities: [] });
-        setSelectedAmenities([]);
-        setTimeError(null);
-        setConversationStarted(false);
-        setTimeout(startConversation, 300);
-    }, [startConversation]);
-
     useEffect(() => {
-        if (!isOpen) {
-            setMessages([]);
-            setCurrentStep("welcome");
-            return;
+        if (!conversationStarted && isOpen) {
+            setMessages([
+                {
+                    id: generateMessageId(),
+                    text: "Hello! I'm FitFinder, your AI-powered booking assistant. 🤖\n\nI can help you find facilities, check availability, and suggest the best spots for your events across the campus.\n\nHow can I help you today?",
+                    sender: "bot",
+                    timestamp: new Date(),
+                }
+            ]);
+            setConversationStarted(true);
         }
-        
-        if (messages.length === 0) {
-            startConversation();
-        }
-    }, [isOpen, startConversation]);
+    }, [isOpen, conversationStarted]);
 
-    const goToNextStep = useCallback((nextStep: BookingStep, botMessage: ChatMessage) => {
-        setCurrentStep(nextStep);
-        setMessages(prev => [...prev, botMessage]);
-        setIsTyping(false);
-    }, []);
+    const handleSend = async () => {
+        if (!input.trim() || isTyping) return;
 
-    const processSelection = useCallback(async (option: ChatOption) => {
+        const userMessageText = input.trim();
         const userMsg: ChatMessage = {
             id: generateMessageId(),
-            text: option.label,
+            text: userMessageText,
             sender: "user",
             timestamp: new Date(),
         };
+
         setMessages(prev => [...prev, userMsg]);
+        setInput("");
         setIsTyping(true);
-        setTimeError(null);
-        await new Promise(resolve => setTimeout(resolve, 600));
 
-        const currentBookingData = bookingDataRef.current;
-        let botMsg: ChatMessage;
-
-        if (currentStep === "category") {
-            setBookingData(prev => ({ ...prev, category: option.value }));
-            botMsg = {
-                id: generateMessageId(),
-                text: "Where do you need it?",
-                sender: "bot",
-                timestamp: new Date(),
-                isLocationPicker: true,
-            };
-            goToNextStep("location", botMsg);
-            setIsTyping(false);
-            return;
-        }
-
-        if (currentStep === "location") {
-            const locationVal = option.value;
-            setBookingData(prev => ({ ...prev, location: locationVal }));
-            
-            if (currentBookingData.category === "FACILITY") {
-                botMsg = {
-                    id: generateMessageId(),
-                    text: "What type of space would you like to book?",
-                    sender: "bot",
-                    timestamp: new Date(),
-                    isTypePicker: true,
-                };
-                goToNextStep("facilityType", botMsg);
-            } else {
-                botMsg = {
-                    id: generateMessageId(),
-                    text: "What type of utility do you need?",
-                    sender: "bot",
-                    timestamp: new Date(),
-                    isUtilityTypePicker: true,
-                };
-                goToNextStep("utilityType", botMsg);
-            }
-            setIsTyping(false);
-            return;
-        }
-
-        if (currentStep === "facilityType") {
-            setBookingData(prev => ({ ...prev, type: option.value }));
-            botMsg = {
-                id: generateMessageId(),
-                text: "How many people will be using this facility?",
-                sender: "bot",
-                timestamp: new Date(),
-                isCapacityPicker: true,
-            };
-            goToNextStep("capacity", botMsg);
-            setIsTyping(false);
-            return;
-        }
-
-        if (currentStep === "capacity") {
-            const capacityLabel = option.label;
-            setBookingData(prev => ({ ...prev, capacity: parseInt(option.value), capacityLabel }));
-            botMsg = {
-                id: generateMessageId(),
-                text: "What date do you need it for?",
-                sender: "bot",
-                timestamp: new Date(),
-                isDatePicker: true,
-            };
-            goToNextStep("date", botMsg);
-            setIsTyping(false);
-            return;
-        }
-
-        if (currentStep === "date") {
-            const dateVal = option.value;
-            setBookingData(prev => ({ ...prev, date: dateVal }));
-            botMsg = {
-                id: generateMessageId(),
-                text: "What start time works for you?",
-                sender: "bot",
-                timestamp: new Date(),
-                isStartTimePicker: true,
-            };
-            goToNextStep("startTime", botMsg);
-            setIsTyping(false);
-            return;
-        }
-
-        if (currentStep === "startTime") {
-            const startTimeVal = option.value;
-            
-            const today = new Date();
-            const todayStr = today.getFullYear() + '-' + 
-                String(today.getMonth() + 1).padStart(2, '0') + '-' + 
-                String(today.getDate()).padStart(2, '0');
-            const isToday = currentBookingData.date === todayStr;
-            if (isToday) {
-                const currentHour = new Date().getHours();
-                const selectedHour = parseInt(startTimeVal.split(':')[0]);
-                if (selectedHour <= currentHour) {
-                    setTimeError("You cannot select a past time for today. Please choose a future time.");
-                    setIsTyping(false);
-                    return;
-                }
-            }
-            
-            setBookingData(prev => ({ ...prev, startTime: startTimeVal }));
-            botMsg = {
-                id: generateMessageId(),
-                text: "What end time?",
-                sender: "bot",
-                timestamp: new Date(),
-                isEndTimePicker: true,
-            };
-            goToNextStep("endTime", botMsg);
-            setIsTyping(false);
-            return;
-        }
-
-        if (currentStep === "endTime") {
-            const endTimeVal = option.value;
-            
-            if (!validateTimeRange(currentBookingData.startTime, endTimeVal)) {
-                setTimeError("End time must be later than start time.");
-                setIsTyping(false);
-                return;
-}
-             
-            const today = new Date();
-            const todayStr = today.getFullYear() + '-' + 
-                String(today.getMonth() + 1).padStart(2, '0') + '-' + 
-                String(today.getDate()).padStart(2, '0');
-            const isToday = currentBookingData.date === todayStr;
-            if (isToday) {
-                const currentHour = new Date().getHours();
-                const selectedHour = parseInt(endTimeVal.split(':')[0]);
-                if (selectedHour <= currentHour) {
-                    setTimeError("You cannot select a past time for today. Please choose a future time.");
-                    setIsTyping(false);
-                    return;
-                }
-            }
-            
-            setBookingData(prev => ({ ...prev, endTime: endTimeVal }));
-            
-            setIsTyping(true);
-            const matches = await findBestMatchesWithAvailabilityCheck(resources, {
-                category: currentBookingData.category,
-                type: currentBookingData.type,
-                location: currentBookingData.location,
-                capacity: currentBookingData.capacity,
-                date: currentBookingData.date,
-                startTime: currentBookingData.startTime,
-                endTime: endTimeVal,
+        try {
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
+            const res = await fetch(`${apiUrl}/api/chatbot/chat`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message: userMessageText }),
+                credentials: "include"
             });
+
+            if (!res.ok) throw new Error("Failed to reach AI service");
+
+            const data = await res.json();
             
-            setCurrentStep("recommendation");
-            
-            if (matches.conflict) {
-                const conflictRes = matches.conflictResource;
-                const conflictMsg = conflictRes?.bookedSlot
-                    ? `This room is the best option, but it is already booked from ${conflictRes.bookedSlot.start} to ${conflictRes.bookedSlot.end}. It will be free after ${conflictRes.bookedSlot.end}. What would you like to do?`
-                    : "This facility is already booked during this time. What would you like to do?";
-                botMsg = {
-                    id: generateMessageId(),
-                    text: conflictMsg,
-                    sender: "bot",
-                    timestamp: new Date(),
-                    isBooked: true,
-                    bookedSlot: conflictRes?.bookedSlot,
-                    options: [
-                        { label: "Try Different Time", value: "retry_time" },
-                        { label: "See Alternatives", value: "view_alternative" },
-                        { label: "Start Over", value: "start" },
-                    ],
-                };
-                setMessages(prev => [...prev, botMsg]);
-                setIsTyping(false);
-                return;
-            }
-            
-            if (matches.available.length === 0 && matches.booked.length === 0) {
-                botMsg = {
-                    id: generateMessageId(),
-                    text: `I couldn't find any ${currentBookingData.category === "FACILITY" ? "facility" : "utility"} matching your requirements. Would you like to try a different location or start over?`,
-                    sender: "bot",
-                    timestamp: new Date(),
-                    options: [
-                        { label: "Start Over", value: "start" },
-                    ],
-                };
-            } else if (matches.available.length > 0) {
-                const topMatch = matches.available[0];
-                const reason = buildRecommendationReason(topMatch, {
-                    category: currentBookingData.category,
-                    type: currentBookingData.type,
-                    location: currentBookingData.location,
-                    capacityLabel: currentBookingData.capacityLabel,
-                });
-                
-                botMsg = {
-                    id: generateMessageId(),
-                    text: `Perfect! I found ${matches.available.length} available option${matches.available.length > 1 ? 's' : ''} for you. Here are the best matches:`,
-                    sender: "bot",
-                    timestamp: new Date(),
-                    resources: matches.available,
-                    recommendationReason: reason,
-                    bookingData: { ...currentBookingData, endTime: endTimeVal },
-                    alternativeResources: matches.booked.length > 0 ? matches.booked : undefined,
-                };
-            } else if (matches.booked.length > 0) {
-                const topBooked = matches.booked[0];
-                const availability = checkAvailabilityForSlot(topBooked, currentBookingData.date, currentBookingData.startTime, endTimeVal);
-                const reason = buildRecommendationReason(topBooked, {
-                    category: currentBookingData.category,
-                    type: currentBookingData.type,
-                    location: currentBookingData.location,
-                    capacityLabel: currentBookingData.capacityLabel,
-                });
-                
-                const bookedSlot = availability.bookedSlot;
-                const freeAfter = bookedSlot ? bookedSlot.end : "the selected time ends";
-                
-                botMsg = {
-                    id: generateMessageId(),
-                    text: bookedSlot 
-                        ? `${topBooked.resourceName || topBooked.name} is the best option for your needs, but it is already booked from ${bookedSlot.start} to ${bookedSlot.end}. It will be free after ${freeAfter}. What would you like to do?`
-                        : "All matching facilities are booked for your selected time. Here are the options:",
-                    sender: "bot",
-                    timestamp: new Date(),
-                    resources: [],
-                    isBooked: true,
-                    bookedSlot: bookedSlot,
-                    recommendationReason: reason,
-                    bookingData: { ...currentBookingData, endTime: endTimeVal, amenities: selectedAmenities },
-                    alternativeResources: matches.booked,
-                    options: [
-                        { label: "Try Different Time", value: "retry_time" },
-                        { label: "See Alternatives", value: "view_alternative" },
-                        { label: "Start Over", value: "start" },
-                    ],
+            // Transform resources and extract booking metadata
+            const transformedResources = (data.resources || []).map((r: any) => ({
+                ...r,
+                resourceName: r.resourceName || r.name,
+                resourceType: r.resourceType || r.type,
+                location: r.location || r.campusLocation?.buildingName || r.building || "",
+                campusLocation: r.campusLocation || {
+                    campusName: r.campusName || "",
+                    buildingName: r.building || "",
+                    roomNumber: r.roomNumber || "",
+                },
+            }));
+
+            // Create bookingData if date/time info was extracted by the AI
+            let bookingData: BookingData | undefined = undefined;
+            if (data.date && data.startTime && data.endTime) {
+                bookingData = {
+                    date: data.date,
+                    startTime: data.startTime,
+                    endTime: data.endTime,
+                    category: transformedResources[0]?.category || "FACILITY",
+                    type: transformedResources[0]?.resourceType || "GENERAL",
+                    location: transformedResources[0]?.location || "",
+                    capacity: 0,
+                    capacityLabel: "",
                 };
             }
-            
-            setMessages(prev => [...prev, botMsg]);
-            setIsTyping(false);
-            return;
-        }
 
-        if (currentStep === "recommendation") {
-            if (option.value === "start" || option.value === "start_over") {
-                resetConversation();
-                setIsTyping(false);
-                return;
-            }
-
-            if (option.value === "retry_time") {
-                botMsg = {
-                    id: generateMessageId(),
-                    text: "Let's choose a different time. What start time works for you?",
-                    sender: "bot",
-                    timestamp: new Date(),
-                    isStartTimePicker: true,
-                };
-                setCurrentStep("startTime");
-                setMessages(prev => [...prev, botMsg]);
-                setIsTyping(false);
-                return;
-            }
-
-            if (option.value === "view_details") {
-                const lastMsg = messages[messages.length - 1];
-                const resource = lastMsg?.resource || (lastMsg?.resources && lastMsg.resources[0]);
-                if (resource) {
-                    onViewResource(resource, lastMsg.bookingData);
-                }
-                setIsTyping(false);
-                return;
-            }
-
-            if (option.value === "book_now") {
-                const lastMsg = messages[messages.length - 1];
-                const resource = lastMsg?.resource || (lastMsg?.resources && lastMsg.resources[0]);
-                if (resource) {
-                    onBookResource(resource, lastMsg.bookingData);
-                }
-                setIsTyping(false);
-                return;
-            }
-
-            if (option.value.startsWith("view_resource_")) {
-                const resourceId = option.value.replace("view_resource_", "");
-                const lastMsg = messages[messages.length - 1];
-                const resource = lastMsg?.resources?.find(r => (r.id || r._id) === resourceId);
-                if (resource) {
-                    onViewResource(resource, lastMsg.bookingData);
-                }
-                setIsTyping(false);
-                return;
-            }
-
-            if (option.value.startsWith("book_resource_")) {
-                const resourceId = option.value.replace("book_resource_", "");
-                const lastMsg = messages[messages.length - 1];
-                const resource = lastMsg?.resources?.find(r => (r.id || r._id) === resourceId);
-                if (resource) {
-                    onBookResource(resource, lastMsg.bookingData);
-                }
-                setIsTyping(false);
-                return;
-            }
-
-            if (option.value === "view_alternative") {
-                const lastMsg = messages[messages.length - 1];
-                const altResources = lastMsg?.alternativeResources;
-                if (altResources && altResources.length > 0) {
-                    const altResource = altResources[0];
-                    const reason = buildRecommendationReason(altResource, {
-                        category: currentBookingData.category,
-                        type: currentBookingData.type,
-                        location: currentBookingData.location,
-                        capacityLabel: currentBookingData.capacityLabel,
-                    });
-                    botMsg = {
-                        id: generateMessageId(),
-                        text: "Here's an alternative that's available:",
-                        sender: "bot",
-                        timestamp: new Date(),
-                        resource: altResource,
-                        recommendationReason: reason,
-                    };
-                    setMessages(prev => [...prev, botMsg]);
-                }
-                setIsTyping(false);
-                return;
-            }
-
-            botMsg = {
+            const botMsg: ChatMessage = {
                 id: generateMessageId(),
-                text: "Would you like to start over or try different criteria?",
+                text: data.response || "I found some results for you:",
                 sender: "bot",
                 timestamp: new Date(),
-                options: [
-                    { label: "Start Over", value: "start" },
-                ],
+                resources: transformedResources,
+                bookingData: bookingData,
             };
+
             setMessages(prev => [...prev, botMsg]);
+        } catch (error: any) {
+            const errorMsg: ChatMessage = {
+                id: generateMessageId(),
+                text: "I'm having a bit of trouble connecting to my AI core. 🔌 Please make sure the backend is running and try again.",
+                sender: "bot",
+                timestamp: new Date(),
+                error: error.message
+            };
+            setMessages(prev => [...prev, errorMsg]);
+        } finally {
             setIsTyping(false);
-            return;
         }
-
-        setIsTyping(false);
-    }, [currentStep, resources, messages, goToNextStep, resetConversation, onViewResource, onBookResource]);
-
-    const handleDateSelect = (date: string) => {
-        setTimeError(null);
-        processSelection({ label: date, value: date });
     };
 
-    const handleStartTimeSelect = (time: string) => {
-        setTimeError(null);
-        processSelection({ label: time, value: time });
-    };
-
-    const handleEndTimeSelect = (time: string) => {
-        if (!validateTimeRange(bookingData.startTime, time)) {
-            setTimeError("End time must be later than start time.");
-            return;
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            handleSend();
         }
-        
-        const isToday = bookingData.date === new Date().toISOString().split('T')[0];
-        if (isToday) {
-            const currentHour = new Date().getHours();
-            const selectedHour = parseInt(time.split(':')[0]);
-            if (selectedHour <= currentHour) {
-                setTimeError("You cannot select a past time for today. Please choose a future time.");
-                return;
-            }
-        }
-        
-        setTimeError(null);
-        processSelection({ label: time, value: time });
     };
 
-    const getValidStartTimes = (): string[] => {
-        const today = new Date();
-        const todayStr = today.getFullYear() + '-' + 
-            String(today.getMonth() + 1).padStart(2, '0') + '-' + 
-            String(today.getDate()).padStart(2, '0');
-        const isToday = bookingData.date === todayStr;
-        if (!isToday) return TIME_SLOTS;
-        
-        const currentHour = new Date().getHours();
-        return TIME_SLOTS.filter(t => parseInt(t.split(':')[0]) > currentHour);
+    const handleViewDetails = (resource: Resource, bookingData?: BookingData) => {
+        onViewResource(resource, bookingData);
     };
 
-    const formatDate = (daysFromNow: number): string => {
-        const date = new Date();
-        date.setDate(date.getDate() + daysFromNow);
-        return date.toISOString().split("T")[0];
-    };
-
-    const getNextSevenDays = (): ChatOption[] => {
-        const options: ChatOption[] = [];
-        const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-        for (let i = 0; i < 7; i++) {
-            const date = new Date();
-            date.setDate(date.getDate() + i);
-            const label = i === 0 ? "Today" : i === 1 ? "Tomorrow" : `${days[date.getDay()]}, ${date.getDate()}`;
-            options.push({ label, value: formatDate(i) });
-        }
-        return options;
-    };
-
-    const handleViewDetails = (resource: Resource) => {
-        const lastMsg = messages[messages.length - 1];
-        onViewResource(resource, lastMsg?.bookingData);
-    };
-
-    const handleBookNow = (resource: Resource) => {
-        const lastMsg = messages[messages.length - 1];
-        const bookingData = lastMsg?.bookingData;
-        
-        if (bookingData?.date && bookingData?.startTime && bookingData?.endTime) {
-            const availability = checkAvailabilityForSlot(
-                resource, 
-                bookingData.date, 
-                bookingData.startTime, 
-                bookingData.endTime
-            );
-            
-            if (!availability.available && availability.bookedSlot) {
-                const conflictMsg: ChatMessage = {
-                    id: generateMessageId(),
-                    text: `${resource.resourceName || resource.name} is the best option for your needs, but it is already booked from ${availability.bookedSlot.start} to ${availability.bookedSlot.end}. It will be free after ${availability.bookedSlot.end}. What would you like to do?`,
-                    sender: "bot",
-                    timestamp: new Date(),
-                    isBooked: true,
-                    bookedSlot: availability.bookedSlot,
-                    options: [
-                        { label: "Try Different Time", value: "retry_time" },
-                        { label: "See Alternatives", value: "view_alternative" },
-                        { label: "Start Over", value: "start" },
-                    ],
-                };
-                setMessages(prev => [...prev, conflictMsg]);
-                return;
-            }
-        }
-        
+    const handleBookNow = (resource: Resource, bookingData?: BookingData) => {
         onBookResource(resource, bookingData);
     };
 
     const handleStartOver = () => {
-        setIsTyping(true);
-        setTimeout(() => {
-            resetConversation();
-            setIsTyping(false);
-        }, 300);
+        setMessages([
+            {
+                id: generateMessageId(),
+                text: "Hello! I'm FitFinder, your AI-powered booking assistant. 🤖\n\nI can help you find facilities, check availability, and suggest the best spots for your events across the campus.\n\nHow can I help you today?",
+                sender: "bot",
+                timestamp: new Date(),
+            }
+        ]);
     };
 
     const getEndTimeOptions = (): string[] => {
-        if (bookingData.startTime) {
-            return getValidEndTimes(bookingData.startTime);
-        }
         return [];
     };
 
@@ -1213,14 +789,14 @@ export default function SmartBookingChatbot({ isOpen, onClose, onViewResource, o
                         
                         <div className="p-3 pt-0 flex gap-2">
                             <button
-                                onClick={() => handleViewDetails(resource)}
+                                onClick={() => handleViewDetails(resource, msg.bookingData)}
                                 className="flex-1 px-3 py-2 bg-slate-600 hover:bg-slate-500 text-white text-xs font-medium rounded-lg transition-colors flex items-center justify-center gap-1.5"
                             >
                                 <Info className="w-3.5 h-3.5" />
                                 Details
                             </button>
                             <button
-                                onClick={() => handleBookNow(resource)}
+                                onClick={() => handleBookNow(resource, msg.bookingData)}
                                 className="flex-1 px-3 py-2 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white text-xs font-medium rounded-lg transition-colors flex items-center justify-center gap-1.5"
                             >
                                 <Calendar className="w-3.5 h-3.5" />
@@ -1270,13 +846,13 @@ export default function SmartBookingChatbot({ isOpen, onClose, onViewResource, o
                                 </div>
                                 <div className="p-2 pt-0 flex gap-2">
                                     <button
-                                        onClick={() => handleViewDetails(resource)}
+                                        onClick={() => handleViewDetails(resource, msg.bookingData)}
                                         className="flex-1 px-2 py-1.5 bg-slate-600 hover:bg-slate-500 text-white text-xs rounded-lg"
                                     >
                                         Details
                                     </button>
                                     <button
-                                        onClick={() => handleBookNow(resource)}
+                                        onClick={() => handleBookNow(resource, msg.bookingData)}
                                         className="flex-1 px-2 py-1.5 bg-cyan-500 hover:bg-cyan-600 text-white text-xs rounded-lg"
                                     >
                                         Book
@@ -1334,7 +910,7 @@ export default function SmartBookingChatbot({ isOpen, onClose, onViewResource, o
                                 <div className={`px-4 py-2.5 rounded-2xl text-sm ${
                                     msg.sender === "user"
                                         ? "bg-indigo-500 text-white rounded-br-md"
-                                        : "bg-slate-700 text-slate-100 rounded-bl-md"
+                                        : "bg-slate-700 text-slate-100 rounded-bl-md shadow-sm border border-slate-600/50"
                                 }`}>
                                     {msg.text.split('\n').map((line, i) => (
                                         <span key={i}>
@@ -1346,180 +922,8 @@ export default function SmartBookingChatbot({ isOpen, onClose, onViewResource, o
                             </div>
                         </div>
 
-                        {msg.sender === "bot" && (
-                            <>
-                                {msg.options && msg.options.length > 0 && (
-                                    <div className="mt-3 ml-10 flex flex-wrap gap-2">
-                                        {msg.options.map((opt, idx) => (
-                                            <button
-                                                key={idx}
-                                                onClick={() => processSelection(opt)}
-                                                disabled={isTyping}
-                                                className="px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white text-sm font-medium rounded-xl transition-all disabled:opacity-50"
-                                            >
-                                                {opt.label}
-                                            </button>
-                                        ))}
-                                    </div>
-                                )}
-
-                                {msg.isLocationPicker && (
-                                    <div className="mt-3 ml-10">
-                                        {locationOptions.length > 0 ? (
-                                            <div className="grid grid-cols-2 gap-2">
-                                                {locationOptions.slice(0, 6).map((opt, idx) => (
-                                                    <button
-                                                        key={idx}
-                                                        onClick={() => processSelection(opt)}
-                                                        disabled={isTyping}
-                                                        className="text-left px-3 py-2.5 bg-slate-700 hover:bg-slate-600 rounded-xl transition-colors disabled:opacity-50 flex items-center gap-2"
-                                                    >
-                                                        <MapPinned className="w-4 h-4 text-slate-400 shrink-0" />
-                                                        <span className="text-sm text-white truncate">{opt.label}</span>
-                                                    </button>
-                                                ))}
-                                            </div>
-                                        ) : (
-                                            <div className="text-sm text-slate-400">No locations found. Please try again later.</div>
-                                        )}
-                                    </div>
-                                )}
-
-                                {msg.isDatePicker && (
-                                    <div className="mt-3 ml-10">
-                                        <div className="flex flex-wrap gap-2">
-                                            {getNextSevenDays().map((opt, idx) => (
-                                                <button
-                                                    key={idx}
-                                                    onClick={() => handleDateSelect(opt.value)}
-                                                    disabled={isTyping}
-                                                    className="px-3 py-2 bg-slate-700 hover:bg-slate-600 text-white text-sm rounded-lg transition-colors disabled:opacity-50"
-                                                >
-                                                    {opt.label}
-                                                </button>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-
-                                {msg.isStartTimePicker && (
-                                    <div className="mt-3 ml-10">
-                                        {timeError && (
-                                            <div className="mb-2 px-3 py-2 bg-red-500/20 border border-red-500/30 rounded-lg text-sm text-red-400 flex items-center gap-2">
-                                                <AlertTriangle className="w-4 h-4" />
-                                                {timeError}
-                                            </div>
-                                        )}
-                                        <div className="flex flex-wrap gap-2">
-                                            {getValidStartTimes().map((time, idx) => (
-                                                <button
-                                                    key={idx}
-                                                    onClick={() => handleStartTimeSelect(time)}
-                                                    disabled={isTyping}
-                                                    className="px-3 py-2 bg-slate-700 hover:bg-slate-600 text-white text-sm rounded-lg transition-colors disabled:opacity-50"
-                                                >
-                                                    {time}
-                                                </button>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-
-                                {msg.isEndTimePicker && (
-                                    <div className="mt-3 ml-10">
-                                        {timeError && (
-                                            <div className="mb-2 px-3 py-2 bg-red-500/20 border border-red-500/30 rounded-lg text-sm text-red-400 flex items-center gap-2">
-                                                <AlertTriangle className="w-4 h-4" />
-                                                {timeError}
-                                            </div>
-                                        )}
-                                        <div className="flex flex-wrap gap-2">
-                                            {getEndTimeOptions().map((time, idx) => (
-                                                <button
-                                                    key={idx}
-                                                    onClick={() => handleEndTimeSelect(time)}
-                                                    disabled={isTyping}
-                                                    className="px-3 py-2 bg-slate-700 hover:bg-slate-600 text-white text-sm rounded-lg transition-colors disabled:opacity-50"
-                                                >
-                                                    {time}
-                                                </button>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-
-                                {msg.isCapacityPicker && (
-                                    <div className="mt-3 ml-10 flex flex-wrap gap-2">
-                                        {CAPACITY_OPTIONS.map((opt, idx) => (
-                                            <button
-                                                key={idx}
-                                                onClick={() => processSelection(opt)}
-                                                disabled={isTyping}
-                                                className="px-3 py-2 bg-slate-700 hover:bg-slate-600 text-white text-sm rounded-lg transition-colors disabled:opacity-50"
-                                            >
-                                                {opt.label}
-                                            </button>
-                                        ))}
-                                    </div>
-                                )}
-
-                                {msg.isTypePicker && (
-                                    <div className="mt-3 ml-10">
-                                        <div className="grid grid-cols-1 gap-2">
-                                            {FACILITY_TYPES.map((opt, idx) => (
-                                                <button
-                                                    key={idx}
-                                                    onClick={() => processSelection(opt)}
-                                                    disabled={isTyping}
-                                                    className="text-left px-4 py-3 bg-slate-700 hover:bg-slate-600 rounded-xl transition-colors disabled:opacity-50"
-                                                >
-                                                    <div className="font-medium text-white">{opt.label}</div>
-                                                    {opt.description && (
-                                                        <div className="text-xs text-slate-400">{opt.description}</div>
-                                                    )}
-                                                </button>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-
-                                {msg.isUtilityTypePicker && (
-                                    <div className="mt-3 ml-10">
-                                        <div className="grid grid-cols-1 gap-2">
-                                            {UTILITY_TYPES.map((opt, idx) => (
-                                                <button
-                                                    key={idx}
-                                                    onClick={() => processSelection(opt)}
-                                                    disabled={isTyping}
-                                                    className="text-left px-4 py-3 bg-slate-700 hover:bg-slate-600 rounded-xl transition-colors disabled:opacity-50"
-                                                >
-                                                    <div className="font-medium text-white">{opt.label}</div>
-                                                    {opt.description && (
-                                                        <div className="text-xs text-slate-400">{opt.description}</div>
-                                                    )}
-                                                </button>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-
-                                {msg.resources && msg.resources.length > 0 && renderRecommendationCards(msg)}
-                                {msg.isBooked && renderBookedRecommendation(msg)}
-
-                                {msg.resources && msg.resources.length > 0 && (
-                                    <div className="mt-3 ml-10">
-                                        <button
-                                            onClick={() => processSelection({ label: "Start Over", value: "start" })}
-                                            disabled={isTyping}
-                                            className="text-sm text-slate-400 hover:text-white transition-colors disabled:opacity-50 flex items-center gap-1"
-                                        >
-                                            <RotateCcw className="w-3.5 h-3.5" />
-                                            Start Over
-                                        </button>
-                                    </div>
-                                )}
-                            </>
-                        )}
+                        {msg.sender === "bot" && msg.resources && msg.resources.length > 0 && renderRecommendationCards(msg)}
+                        {msg.sender === "bot" && msg.isBooked && renderBookedRecommendation(msg)}
                     </div>
                 ))}
                 
@@ -1529,7 +933,7 @@ export default function SmartBookingChatbot({ isOpen, onClose, onViewResource, o
                             <div className="w-8 h-8 rounded-full bg-cyan-500 flex items-center justify-center shrink-0">
                                 <Bot className="w-4 h-4 text-white" />
                             </div>
-                            <div className="px-4 py-3 rounded-2xl rounded-bl-md bg-slate-700">
+                            <div className="px-4 py-3 rounded-2xl rounded-bl-md bg-slate-700 border border-slate-600/50">
                                 <Loader2 className="w-5 h-5 text-cyan-400 animate-spin" />
                             </div>
                         </div>
@@ -1539,18 +943,40 @@ export default function SmartBookingChatbot({ isOpen, onClose, onViewResource, o
                 <div ref={messagesEndRef} />
             </div>
 
-            {conversationStarted && messages.length > 1 && (
-                <div className="px-4 py-2 border-t border-slate-700">
+            <div className="p-4 bg-slate-800 border-t border-slate-700 flex flex-col gap-2">
+                <div className="flex items-center gap-2">
+                    <input
+                        type="text"
+                        value={input}
+                        onChange={(e) => setInput(e.target.value)}
+                        onKeyDown={handleKeyDown}
+                        placeholder="Type your request here..."
+                        disabled={isTyping}
+                        className="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition-colors"
+                    />
+                    <button
+                        onClick={handleSend}
+                        disabled={!input.trim() || isTyping}
+                        className="p-2.5 bg-cyan-500 hover:bg-cyan-600 disabled:bg-slate-700 text-white rounded-xl transition-all shadow-lg"
+                        title="Send message"
+                    >
+                        <ArrowRight className="w-5 h-5" />
+                    </button>
+                </div>
+                <div className="flex justify-between items-center px-1">
                     <button
                         onClick={handleStartOver}
                         disabled={isTyping}
-                        className="flex items-center gap-2 text-sm text-slate-400 hover:text-white transition-colors disabled:opacity-50"
+                        className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-slate-500 hover:text-white transition-colors disabled:opacity-50"
                     >
-                        <RotateCcw className="w-4 h-4" />
-                        Start Over
+                        <RotateCcw className="w-3 h-3" />
+                        Reset Chat
                     </button>
+                    <div className="text-[10px] font-bold uppercase tracking-widest text-slate-600">
+                        AI Powered Assistant
+                    </div>
                 </div>
-            )}
+            </div>
         </div>
     );
 }

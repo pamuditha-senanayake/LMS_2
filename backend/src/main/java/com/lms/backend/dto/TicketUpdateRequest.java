@@ -14,4 +14,5 @@ public class TicketUpdateRequest {
     private String description;
     private String resourceId;
     private String priority;
+    private String category;
 }
