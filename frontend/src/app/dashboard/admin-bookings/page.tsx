@@ -423,7 +423,7 @@ export default function AdminBookings() {
     : bookings;
 
   return (
-    <div className="p-2 pt-2 text-foreground max-w-7xl mx-auto">
+    <div className="p-2 pt-0 text-foreground max-w-7xl mx-auto">
       {/* Hero Banner Section */}
       <div className="relative w-full rounded-3xl overflow-hidden border border-border-main shadow-2xl bg-card group/banner mb-8">
         {/* Background Decoration */}
