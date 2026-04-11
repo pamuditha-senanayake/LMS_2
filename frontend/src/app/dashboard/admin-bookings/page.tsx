@@ -216,7 +216,7 @@ export default function AdminBookings() {
       color: '#ffffff',
       padding: '2rem',
       didOpen: () => {
-        const select = document.getElementById('reject-reason');
+        const select = document.getElementById('reject-reason') as HTMLSelectElement | null;
         if (select) {
           select.addEventListener('change', () => {
             const otherField = document.getElementById('reject-other');
@@ -322,7 +322,7 @@ export default function AdminBookings() {
       color: '#ffffff',
       padding: '2rem',
       didOpen: () => {
-        const select = document.getElementById('cancel-reason');
+        const select = document.getElementById('cancel-reason') as HTMLSelectElement | null;
         if (select) {
           select.addEventListener('change', () => {
             const otherField = document.getElementById('cancel-other');
