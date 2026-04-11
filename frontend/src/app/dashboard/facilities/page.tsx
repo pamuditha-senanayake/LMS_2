@@ -94,6 +94,7 @@ export default function FacilitiesCatalogue() {
     const [isChatbotOpen, setIsChatbotOpen] = useState(false);
     const [selectedResource, setSelectedResource] = useState<Resource | null>(null);
     const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+    const [prefilledBookingData, setPrefilledBookingData] = useState<any>(null);
     const [filters, setFilters] = useState<FilterState>({
         category: "ALL",
         type: "ALL",
@@ -480,27 +481,35 @@ export default function FacilitiesCatalogue() {
                     onClose={() => {
                         setIsDetailsModalOpen(false);
                         setSelectedResource(null);
+                        setPrefilledBookingData(null);
                     }}
+                    prefilledData={prefilledBookingData}
                 />
             )}
 
-            <SmartChatbotToggle
-                isOpen={isChatbotOpen}
-                onToggle={() => setIsChatbotOpen(!isChatbotOpen)}
-            />
-            <SmartBookingChatbot
-                isOpen={isChatbotOpen}
-                onClose={() => setIsChatbotOpen(false)}
-                onViewResource={(resource) => {
-                    setSelectedResource(resource);
-                    setIsDetailsModalOpen(true);
-                }}
-                onBookResource={(resource) => {
-                    setSelectedResource(resource);
-                    setIsDetailsModalOpen(true);
-                }}
-                resources={resources}
-            />
+            {!isAdmin && (
+                <>
+                    <SmartChatbotToggle
+                        isOpen={isChatbotOpen}
+                        onToggle={() => setIsChatbotOpen(!isChatbotOpen)}
+                    />
+                    <SmartBookingChatbot
+                        isOpen={isChatbotOpen}
+                        onClose={() => setIsChatbotOpen(false)}
+                        onViewResource={(resource, bookingData) => {
+                            setSelectedResource(resource);
+                            setPrefilledBookingData(bookingData);
+                            setIsDetailsModalOpen(true);
+                        }}
+                        onBookResource={(resource, bookingData) => {
+                            setSelectedResource(resource);
+                            setPrefilledBookingData(bookingData);
+                            setIsDetailsModalOpen(true);
+                        }}
+                        resources={resources}
+                    />
+                </>
+            )}
         </>
     );
 }
