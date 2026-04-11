@@ -153,16 +153,68 @@ export default function AdminBookings() {
 
   const handleReject = useCallback((id: string, name: string) => {
     Swal.fire({
-      title: `Reject booking for ${name}?`,
-      input: 'textarea',
-      inputPlaceholder: 'Reason for rejection...',
-      icon: 'warning',
+      title: `Reject Booking`,
+      html: `
+        <div style="text-align: center; padding: 1rem 0;">
+          <div style="width: 64px; height: 64px; margin: 0 auto 1rem; background: rgba(239, 68, 68, 0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="15" y1="9" x2="9" y2="15"></line>
+              <line x1="9" y1="9" x2="15" y2="15"></line>
+            </svg>
+          </div>
+          <p style="color: #94a3b8; font-size: 14px; margin-bottom: 1.5rem;">Are you sure you want to reject the booking for <strong style="color: #ffffff;">${name}</strong>?</p>
+          <div style="text-align: left;">
+            <label style="display: block; color: #94a3b8; font-size: 13px; font-weight: 500; margin-bottom: 0.5rem;">Reason for rejection</label>
+            <select id="reject-reason" style="width: 100%; padding: 0.75rem 1rem; background: #0f172a; color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 10px; font-size: 14px; outline: none; cursor: pointer; appearance: none; background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%2394a3b8%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3e%3cpolyline points=%276 9 12 15 18 9%27%3e%3c/polyline%3e%3c/svg%3e'); background-repeat: no-repeat; background-position: right 1rem center; background-size: 16px;">
+              <option value="">Select a reason</option>
+              <option value="Time slot not available">Time slot not available</option>
+              <option value="Resource under maintenance">Resource under maintenance</option>
+              <option value="Insufficient capacity">Insufficient capacity</option>
+              <option value="Duplicate booking request">Duplicate booking request</option>
+              <option value="Incomplete information">Incomplete information</option>
+              <option value="Booking exceeds allowed limit">Booking exceeds allowed limit</option>
+              <option value="other">Other (specify)</option>
+            </select>
+            <textarea id="reject-other" class="hidden" style="width: 100%; padding: 0.75rem 1rem; background: #0f172a; color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 10px; font-size: 14px; outline: none; margin-top: 0.75rem; resize: none; min-height: 80px; font-family: inherit;" placeholder="Enter reason..."></textarea>
+          </div>
+        </div>
+      `,
       showCancelButton: true,
       confirmButtonColor: '#ef4444',
       cancelButtonColor: '#6366f1',
+      cancelButtonText: 'Cancel',
       confirmButtonText: 'Reject',
-      background: 'var(--card-bg)',
-      color: 'var(--foreground)',
+      background: '#020617',
+      color: '#ffffff',
+      padding: '2rem',
+      borderRadius: '16px',
+      didOpen: () => {
+        const select = document.getElementById('reject-reason');
+        if (select) {
+          select.addEventListener('change', () => {
+            const otherField = document.getElementById('reject-other');
+            if (select.value === 'other') {
+              otherField?.classList.remove('hidden');
+            } else {
+              otherField?.classList.add('hidden');
+            }
+          });
+        }
+      },
+      preConfirm: () => {
+        const reason = (document.getElementById('reject-reason') as HTMLSelectElement)?.value;
+        const otherReason = (document.getElementById('reject-other') as HTMLTextAreaElement)?.value;
+        if (!reason) {
+          Swal.showValidationMessage('Please select a reason');
+          return false;
+        }
+        if (reason === 'other' && !otherReason) {
+          Swal.showValidationMessage('Please specify the reason');
+          return false;
+        }
+        return reason === 'other' ? otherReason : reason;
+      }
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
