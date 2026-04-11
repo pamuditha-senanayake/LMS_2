@@ -16,11 +16,14 @@ export default function SmartChatbotToggle({ isOpen, onToggle }: SmartChatbotTog
                     ? "bg-slate-700 hover:bg-slate-600"
                     : "bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600"
             } shadow-cyan-500/25 hover:shadow-cyan-500/40`}
+            title={isOpen ? "Close FitFinder" : "Open FitFinder"}
         >
             {isOpen ? (
                 <X className="w-6 h-6 text-white" />
             ) : (
-                <MessageCircle className="w-6 h-6 text-white" />
+                <div className="relative">
+                    <MessageCircle className="w-6 h-6 text-white" />
+                </div>
             )}
         </button>
     );

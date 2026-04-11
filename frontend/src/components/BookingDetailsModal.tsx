@@ -128,8 +128,8 @@ export default function BookingDetailsModal({ isOpen, onClose, bookingId, onCanc
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full max-w-3xl bg-card rounded-2xl shadow-2xl border border-border-main max-h-[90vh] overflow-hidden">
-        <div className="flex items-center justify-between p-6 border-b border-border-main bg-card">
+      <div className="relative w-full max-w-3xl bg-card rounded-2xl shadow-2xl border border-border-main max-h-[90vh] flex flex-col">
+        <div className="flex items-center justify-between p-6 border-b border-border-main bg-card shrink-0">
           <div className="flex items-center gap-3">
             <h2 className="text-xl font-bold text-foreground">Booking Details</h2>
             {booking && getStatusBadge(booking.status)}
@@ -148,7 +148,7 @@ export default function BookingDetailsModal({ isOpen, onClose, bookingId, onCanc
           </div>
         ) : booking ? (
           <>
-            <div className="flex border-b border-border-main">
+            <div className="flex border-b border-border-main shrink-0">
               <button
                 onClick={() => setActiveTab("details")}
                 className={`flex-1 px-6 py-3 text-sm font-bold uppercase tracking-widest transition-all ${
@@ -171,7 +171,7 @@ export default function BookingDetailsModal({ isOpen, onClose, bookingId, onCanc
               </button>
             </div>
 
-            <div className="p-6 overflow-y-auto max-h-[calc(90vh-180px)]">
+            <div className="p-6 overflow-y-auto flex-1">
               {activeTab === "details" ? (
                 <div className="space-y-6">
                   <div className="grid grid-cols-2 gap-6">
@@ -323,10 +323,11 @@ export default function BookingDetailsModal({ isOpen, onClose, bookingId, onCanc
             </div>
 
             {(booking.status === "APPROVED" || booking.status === "PENDING") && onCancel && (
-              <div className="p-6 border-t border-border-main bg-card">
+              <div className="shrink-0 p-6 pt-4 border-t border-border-main bg-card">
+                <div className="h-px bg-gradient-to-r from-transparent via-red-500/20 to-transparent mb-6" />
                 <button
                   onClick={onCancel}
-                  className="w-full px-6 py-3 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-500 font-black uppercase tracking-widest text-xs transition-all active:scale-[0.98] rounded-xl"
+                  className="w-full px-6 py-3.5 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 hover:border-red-500/50 text-red-400 hover:text-red-300 font-bold uppercase tracking-widest text-xs transition-all active:scale-[0.98] rounded-xl"
                 >
                   Cancel Booking
                 </button>

@@ -154,9 +154,9 @@ export default function AdminTickets() {
                 Swal.fire({ 
                     title: "Updated!", 
                     icon: "success", 
-                    background: 'var(--card-bg)', 
-                    color: 'var(--foreground)',
-                    customClass: { popup: 'glass-card border-none rounded-[2rem]' }
+                    background: '#1e293b', 
+                    color: '#fff',
+                    customClass: { popup: 'rounded-2xl' }
                 });
                 fetchTickets();
             } else {
@@ -427,7 +427,7 @@ export default function AdminTickets() {
                     <button 
                         onClick={() => fetchTickets()}
                         disabled={refreshing}
-                        className="flex items-center justify-center gap-3 px-8 py-3 bg-primary hover:bg-primary-dark text-white rounded-2xl font-bold text-sm shadow-xl shadow-primary/20 active:scale-95 transition-all disabled:opacity-50"
+                        className="flex items-center justify-center gap-3 px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white rounded-2xl font-bold text-sm shadow-lg shadow-indigo-500/30 active:scale-95 transition-all disabled:opacity-50"
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={refreshing ? 'animate-spin' : ''}>
                             <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
@@ -457,7 +457,8 @@ export default function AdminTickets() {
                         <select
                             value={filters.status}
                             onChange={(e) => setFilters({...filters, status: e.target.value})}
-                            className="w-full px-3 py-2 bg-background border border-border-main rounded-lg text-sm text-foreground focus:border-primary focus:outline-none"
+                            className="w-full px-3 py-2 bg-slate-800 border border-border-main rounded-lg text-sm text-foreground focus:border-primary focus:outline-none appearance-none cursor-pointer"
+                            style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 8px center', backgroundSize: '16px' }}
                         >
                             <option value="">All Status</option>
                             <option value="OPEN">Open</option>
@@ -472,7 +473,8 @@ export default function AdminTickets() {
                         <select
                             value={filters.priority}
                             onChange={(e) => setFilters({...filters, priority: e.target.value})}
-                            className="w-full px-3 py-2 bg-background border border-border-main rounded-lg text-sm text-foreground focus:border-primary focus:outline-none"
+                            className="w-full px-3 py-2 bg-slate-800 border border-border-main rounded-lg text-sm text-foreground focus:border-primary focus:outline-none appearance-none cursor-pointer"
+                            style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 8px center', backgroundSize: '16px' }}
                         >
                             <option value="">All Priorities</option>
                             <option value="CRITICAL">Critical</option>
@@ -527,7 +529,7 @@ export default function AdminTickets() {
                                     <th className="p-4 font-semibold text-foreground/80 text-right min-w-[350px]">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody className="divide-y border-border-main">
                                 {filteredTickets.length === 0 ? (
                                     <tr>
                                         <td colSpan={5} className="p-8 text-center text-muted">
@@ -543,7 +545,7 @@ export default function AdminTickets() {
                                     </tr>
                                 ) : (
                                     filteredTickets.map((t) => (
-                                        <tr key={t.id} className={`border-b border-border-main/50 hover:bg-foreground/5 transition-colors ${isOverdue(t) ? '!bg-red-500/10 !border-l-4 !border-l-red-500' : ''}`}>
+                                        <tr key={t.id} className={`hover:bg-foreground/5 transition-colors ${isOverdue(t) ? '!bg-red-500/10 !border-l-4 !border-l-red-500' : ''}`}>
                                             <td className="p-4">
                                                 <div className="flex items-center gap-2">
                                                     <div className={`font-semibold ${isOverdue(t) ? 'text-red-400' : 'text-foreground'}`}>{t.title}</div>
@@ -615,7 +617,7 @@ export default function AdminTickets() {
                                                         <>
                                                             <button 
                                                                 onClick={() => handleAction(t.id, "IN_PROGRESS", true)}
-                                                                className="px-3 py-1.5 text-xs font-medium bg-primary/20 hover:bg-primary hover:text-white text-primary rounded-lg transition-colors"
+                                                                className="px-3 py-1.5 text-xs font-medium bg-indigo-500/10 hover:bg-indigo-500 hover:text-white text-indigo-400 rounded-lg transition-colors border border-indigo-500/20"
                                                             >
                                                                 Start Work
                                                             </button>

@@ -115,14 +115,26 @@ export default function AdminBookings() {
 
   const handleApprove = useCallback((id: string, name: string) => {
     Swal.fire({
-      title: `Approve booking for ${name}?`,
-      icon: 'question',
+      title: `Approve Booking`,
+      html: `
+        <div style="text-align: center; padding: 1rem 0;">
+          <div style="width: 64px; height: 64px; margin: 0 auto 1rem; background: rgba(16, 185, 129, 0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </div>
+          <p style="color: #94a3b8; font-size: 14px; margin-bottom: 0.5rem;">Are you sure you want to approve the booking for</p>
+          <p style="color: #ffffff; font-size: 16px; font-weight: 600;">${name}</p>
+        </div>
+      `,
       showCancelButton: true,
       confirmButtonColor: '#10b981',
       cancelButtonColor: '#6366f1',
+      cancelButtonText: 'Cancel',
       confirmButtonText: 'Approve',
-      background: 'var(--card-bg)',
-      color: 'var(--foreground)',
+      background: '#020617',
+      color: '#ffffff',
+      padding: '2rem'
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
@@ -138,14 +150,29 @@ export default function AdminBookings() {
           });
 
           if (res.ok) {
-            Swal.fire({ title: "Success!", icon: "success", background: 'var(--card-bg)', color: 'var(--foreground)' });
+            Swal.fire({ 
+              title: "Approved!",
+              html: `
+                <div style="text-align: center; padding: 1rem 0;">
+                  <div style="width: 64px; height: 64px; margin: 0 auto 1rem; background: rgba(16, 185, 129, 0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                  </div>
+                  <p style="color: #94a3b8; font-size: 14px;">Booking has been approved successfully.</p>
+                </div>
+              `,
+              background: '#020617', 
+              color: '#ffffff',
+              padding: '2rem'
+            });
             queryClient.invalidateQueries({ queryKey: ["admin-bookings"] });
             queryClient.invalidateQueries({ queryKey: ["booking-stats"] });
           } else {
-            Swal.fire({ title: "Error", text: await res.text(), icon: "error", background: 'var(--card-bg)', color: 'var(--foreground)' });
+            Swal.fire({ title: "Error", text: await res.text(), icon: "error", background: '#1e293b', color: '#fff' });
           }
         } catch {
-          Swal.fire({ title: "Error", text: "Network Error", icon: "error", background: 'var(--card-bg)', color: 'var(--foreground)' });
+          Swal.fire({ title: "Error", text: "Network Error", icon: "error", background: '#1e293b', color: '#fff' });
         }
       }
     });
@@ -153,16 +180,67 @@ export default function AdminBookings() {
 
   const handleReject = useCallback((id: string, name: string) => {
     Swal.fire({
-      title: `Reject booking for ${name}?`,
-      input: 'textarea',
-      inputPlaceholder: 'Reason for rejection...',
-      icon: 'warning',
+      title: `Reject Booking`,
+      html: `
+        <div style="text-align: center; padding: 1rem 0;">
+          <div style="width: 64px; height: 64px; margin: 0 auto 1rem; background: rgba(239, 68, 68, 0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="15" y1="9" x2="9" y2="15"></line>
+              <line x1="9" y1="9" x2="15" y2="15"></line>
+            </svg>
+          </div>
+          <p style="color: #94a3b8; font-size: 14px; margin-bottom: 1.5rem;">Are you sure you want to reject the booking for <strong style="color: #ffffff;">${name}</strong>?</p>
+          <div style="text-align: left;">
+            <label style="display: block; color: #94a3b8; font-size: 13px; font-weight: 500; margin-bottom: 0.5rem;">Reason for rejection</label>
+            <select id="reject-reason" style="width: 100%; padding: 0.75rem 1rem; background: #0f172a; color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 10px; font-size: 14px; outline: none; cursor: pointer; appearance: none; background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%2394a3b8%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3e%3cpolyline points=%276 9 12 15 18 9%27%3e%3c/polyline%3e%3c/svg%3e'); background-repeat: no-repeat; background-position: right 1rem center; background-size: 16px;">
+              <option value="">Select a reason</option>
+              <option value="Time slot not available">Time slot not available</option>
+              <option value="Resource under maintenance">Resource under maintenance</option>
+              <option value="Insufficient capacity">Insufficient capacity</option>
+              <option value="Duplicate booking request">Duplicate booking request</option>
+              <option value="Incomplete information">Incomplete information</option>
+              <option value="Booking exceeds allowed limit">Booking exceeds allowed limit</option>
+              <option value="other">Other (specify)</option>
+            </select>
+            <textarea id="reject-other" class="hidden" style="width: 100%; padding: 0.75rem 1rem; background: #0f172a; color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 10px; font-size: 14px; outline: none; margin-top: 0.75rem; resize: none; min-height: 80px; font-family: inherit;" placeholder="Enter reason..."></textarea>
+          </div>
+        </div>
+      `,
       showCancelButton: true,
       confirmButtonColor: '#ef4444',
       cancelButtonColor: '#6366f1',
+      cancelButtonText: 'Cancel',
       confirmButtonText: 'Reject',
-      background: 'var(--card-bg)',
-      color: 'var(--foreground)',
+      background: '#020617',
+      color: '#ffffff',
+      padding: '2rem',
+      didOpen: () => {
+        const select = document.getElementById('reject-reason') as HTMLSelectElement | null;
+        if (select) {
+          select.addEventListener('change', () => {
+            const otherField = document.getElementById('reject-other');
+            if (select.value === 'other') {
+              otherField?.classList.remove('hidden');
+            } else {
+              otherField?.classList.add('hidden');
+            }
+          });
+        }
+      },
+      preConfirm: () => {
+        const reason = (document.getElementById('reject-reason') as HTMLSelectElement)?.value;
+        const otherReason = (document.getElementById('reject-other') as HTMLTextAreaElement)?.value;
+        if (!reason) {
+          Swal.showValidationMessage('Please select a reason');
+          return false;
+        }
+        if (reason === 'other' && !otherReason) {
+          Swal.showValidationMessage('Please specify the reason');
+          return false;
+        }
+        return reason === 'other' ? otherReason : reason;
+      }
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
@@ -178,14 +256,135 @@ export default function AdminBookings() {
           });
 
           if (res.ok) {
-            Swal.fire({ title: "Success!", icon: "success", background: 'var(--card-bg)', color: 'var(--foreground)' });
+            Swal.fire({ 
+              title: "Rejected!",
+              html: `
+                <div style="text-align: center; padding: 1rem 0;">
+                  <div style="width: 64px; height: 64px; margin: 0 auto 1rem; background: rgba(16, 185, 129, 0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                  </div>
+                  <p style="color: #94a3b8; font-size: 14px;">Booking has been rejected.</p>
+                </div>
+              `,
+              background: '#020617', 
+              color: '#ffffff',
+              padding: '2rem'
+            });
             queryClient.invalidateQueries({ queryKey: ["admin-bookings"] });
             queryClient.invalidateQueries({ queryKey: ["booking-stats"] });
           } else {
-            Swal.fire({ title: "Error", text: await res.text(), icon: "error", background: 'var(--card-bg)', color: 'var(--foreground)' });
+            Swal.fire({ title: "Error", text: await res.text(), icon: "error", background: '#1e293b', color: '#fff' });
           }
         } catch {
-          Swal.fire({ title: "Error", text: "Network Error", icon: "error", background: 'var(--card-bg)', color: 'var(--foreground)' });
+          Swal.fire({ title: "Error", text: "Network Error", icon: "error", background: '#1e293b', color: '#fff' });
+        }
+      }
+    });
+  }, [queryClient, currentUser]);
+
+  const handleAdminCancel = useCallback((id: string, name: string) => {
+    Swal.fire({
+      title: `Cancel Booking`,
+      html: `
+        <div style="text-align: center; padding: 1rem 0;">
+          <div style="width: 64px; height: 64px; margin: 0 auto 1rem; background: rgba(239, 68, 68, 0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="15" y1="9" x2="9" y2="15"></line>
+              <line x1="9" y1="9" x2="15" y2="15"></line>
+            </svg>
+          </div>
+          <p style="color: #94a3b8; font-size: 14px; margin-bottom: 1.5rem;">Are you sure you want to cancel the booking for <strong style="color: #ffffff;">${name}</strong>?</p>
+          <div style="text-align: left;">
+            <label style="display: block; color: #94a3b8; font-size: 13px; font-weight: 500; margin-bottom: 0.5rem;">Reason for cancellation</label>
+            <select id="cancel-reason" style="width: 100%; padding: 0.75rem 1rem; background: #0f172a; color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 10px; font-size: 14px; outline: none; cursor: pointer; appearance: none; background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%2394a3b8%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3e%3cpolyline points=%276 9 12 15 18 9%27%3e%3c/polyline%3e%3c/svg%3e'); background-repeat: no-repeat; background-position: right 1rem center; background-size: 16px;">
+              <option value="">Select a reason</option>
+              <option value="Resource no longer available">Resource no longer available</option>
+              <option value="Schedule conflict">Schedule conflict</option>
+              <option value="Maintenance required">Maintenance required</option>
+              <option value="Double booking detected">Double booking detected</option>
+              <option value="Request from requester">Request from requester</option>
+              <option value="Policy violation">Policy violation</option>
+              <option value="other">Other (specify)</option>
+            </select>
+            <textarea id="cancel-other" class="hidden" style="width: 100%; padding: 0.75rem 1rem; background: #0f172a; color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 10px; font-size: 14px; outline: none; margin-top: 0.75rem; resize: none; min-height: 80px; font-family: inherit;" placeholder="Enter reason..."></textarea>
+          </div>
+        </div>
+      `,
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#6366f1',
+      cancelButtonText: 'Close',
+      confirmButtonText: 'Cancel Booking',
+      background: '#020617',
+      color: '#ffffff',
+      padding: '2rem',
+      didOpen: () => {
+        const select = document.getElementById('cancel-reason') as HTMLSelectElement | null;
+        if (select) {
+          select.addEventListener('change', () => {
+            const otherField = document.getElementById('cancel-other');
+            if (select.value === 'other') {
+              otherField?.classList.remove('hidden');
+            } else {
+              otherField?.classList.add('hidden');
+            }
+          });
+        }
+      },
+      preConfirm: () => {
+        const reason = (document.getElementById('cancel-reason') as HTMLSelectElement)?.value;
+        const otherReason = (document.getElementById('cancel-other') as HTMLTextAreaElement)?.value;
+        if (!reason) {
+          Swal.showValidationMessage('Please select a reason');
+          return false;
+        }
+        if (reason === 'other' && !otherReason) {
+          Swal.showValidationMessage('Please specify the reason');
+          return false;
+        }
+        return reason === 'other' ? otherReason : reason;
+      }
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
+          const url = new URL(`${apiUrl}/api/bookings/${id}/status`);
+          url.searchParams.append("status", "CANCELLED");
+          url.searchParams.append("adminId", currentUser?.id || "N/A");
+          url.searchParams.append("reason", result.value || "Cancelled by admin");
+
+          const res = await fetch(url.toString(), {
+            method: "PATCH",
+            credentials: "include"
+          });
+
+          if (res.ok) {
+            Swal.fire({ 
+              title: "Cancelled!",
+              html: `
+                <div style="text-align: center; padding: 1rem 0;">
+                  <div style="width: 64px; height: 64px; margin: 0 auto 1rem; background: rgba(16, 185, 129, 0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                  </div>
+                  <p style="color: #94a3b8; font-size: 14px;">Booking has been cancelled.</p>
+                </div>
+              `,
+              background: '#020617', 
+              color: '#ffffff',
+              padding: '2rem'
+            });
+            queryClient.invalidateQueries({ queryKey: ["admin-bookings"] });
+            queryClient.invalidateQueries({ queryKey: ["booking-stats"] });
+          } else {
+            Swal.fire({ title: "Error", text: await res.text(), icon: "error", background: '#1e293b', color: '#fff' });
+          }
+        } catch {
+          Swal.fire({ title: "Error", text: "Network Error", icon: "error", background: '#1e293b', color: '#fff' });
         }
       }
     });
@@ -218,7 +417,7 @@ export default function AdminBookings() {
     : bookings;
 
   return (
-    <div className="p-6 text-foreground max-w-7xl mx-auto">
+    <div className="p-2 pt-0 text-foreground max-w-7xl mx-auto">
       {/* Hero Banner Section */}
       <div className="relative w-full rounded-3xl overflow-hidden border border-border-main shadow-2xl bg-card group/banner mb-8">
         {/* Background Decoration */}
@@ -226,8 +425,8 @@ export default function AdminBookings() {
         <div className="absolute top-0 right-0 w-96 h-96 bg-primary/20 blur-[120px] -mr-48 -mt-48 rounded-full" />
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-brand-pink/10 blur-[120px] -ml-48 -mb-48 rounded-full" />
         
-        <div className="relative p-8 md:p-10 flex flex-col items-center text-center space-y-6">
-            <div className="space-y-3 max-w-2xl">
+        <div className="relative p-5 md:p-6 flex flex-col items-center text-center space-y-4">
+            <div className="space-y-2 max-w-2xl">
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-black uppercase tracking-[0.3em]">
                     <Activity size={12} />
                     Institution Booking Management
@@ -257,39 +456,26 @@ export default function AdminBookings() {
                       <div className="text-2xl font-bold text-brand-peach">{stats.pending}</div>
                       <div className="text-xs text-brand-peach/70 font-medium">Pending</div>
                   </div>
-                  <div className="bg-primary-light/10 backdrop-blur-sm rounded-xl p-4 border border-primary-light/20">
-                      <div className="text-2xl font-bold text-primary">{stats.approved}</div>
-                      <div className="text-xs text-primary/70 font-medium">Approved</div>
+                  <div className="bg-emerald-500/10 backdrop-blur-sm rounded-xl p-4 border border-emerald-500/20">
+                      <div className="text-2xl font-bold text-emerald-500">{stats.approved}</div>
+                      <div className="text-xs text-emerald-500/70 font-medium">Approved</div>
                   </div>
                   <div className="bg-rose-500/10 backdrop-blur-sm rounded-xl p-4 border border-rose-500/20">
                       <div className="text-2xl font-bold text-rose-500">{stats.rejected}</div>
                       <div className="text-xs text-rose-500/70 font-medium">Rejected</div>
                   </div>
-                  <div className="bg-emerald-500/10 backdrop-blur-sm rounded-xl p-4 border border-emerald-500/20">
-                      <div className="text-2xl font-bold text-emerald-500">{stats.cancelled}</div>
-                      <div className="text-xs text-emerald-500/70 font-medium">Cancelled</div>
+                  <div className="bg-primary-light/10 backdrop-blur-sm rounded-xl p-4 border border-primary-light/20">
+                      <div className="text-2xl font-bold text-primary">{stats.cancelled}</div>
+                      <div className="text-xs text-primary/70 font-medium">Cancelled</div>
                   </div>
               </div>
             )}
 
-            {/* Sync Button */}
-            <button 
-                onClick={() => {
-                  queryClient.invalidateQueries({ queryKey: ["admin-bookings"] });
-                  queryClient.invalidateQueries({ queryKey: ["booking-stats"] });
-                }}
-                disabled={isFetching}
-                className="flex items-center justify-center gap-3 px-8 py-3 btn-primary-action rounded-2xl font-bold text-sm disabled:opacity-50"
-            >
-
-                <RefreshCw size={18} className={isFetching ? 'animate-spin' : ''} />
-                {isFetching ? "Syncing..." : "Sync Bookings"}
-            </button>
         </div>
       </div>
 
       <div className="bg-card rounded-2xl p-4 mb-6 border border-border-main shadow-lg">
-        <div className="flex flex-col md:flex-row gap-4">
+        <div className="flex flex-col md:flex-row gap-4 items-center">
           <div className="flex-1 relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" size={18} />
             <input
@@ -311,6 +497,17 @@ export default function AdminBookings() {
             <option value="REJECTED">Rejected</option>
             <option value="CANCELLED">Cancelled</option>
           </select>
+          <button 
+            onClick={() => {
+              queryClient.invalidateQueries({ queryKey: ["admin-bookings"] });
+              queryClient.invalidateQueries({ queryKey: ["booking-stats"] });
+            }}
+            disabled={isFetching}
+            className="p-2.5 bg-primary hover:bg-primary/90 text-white rounded-xl disabled:opacity-50 transition-colors"
+            title="Refresh"
+          >
+            <RefreshCw size={18} className={isFetching ? 'animate-spin' : ''} />
+          </button>
         </div>
       </div>
 
@@ -409,6 +606,15 @@ export default function AdminBookings() {
                                   <XCircle size={16} />
                                 </button>
                               </>
+                            )}
+                            {b.status === "APPROVED" && (
+                              <button 
+                                onClick={() => handleAdminCancel(b.id, b.requestedBy?.name || "User")}
+                                className="p-2 text-red-400 hover:bg-red-500/20 rounded-lg transition-colors"
+                                title="Cancel Booking"
+                              >
+                                <XCircle size={16} />
+                              </button>
                             )}
                           </div>
                         </td>

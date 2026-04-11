@@ -163,12 +163,11 @@ export default function BookingCalendarPage() {
   };
 
   return (
-    <div className="p-6 text-white max-w-7xl mx-auto">
-      <div className="mb-8">
-        <h1 className="text-3xl md:text-5xl font-black tracking-tight text-foreground">
-            Booking <span className="text-primary">Calendar</span>
+    <div className="p-6 text-foreground max-w-7xl mx-auto">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+        <h1 className="text-3xl md:text-5xl font-black tracking-tight text-foreground uppercase italic">
+            Booking <span className="text-primary not-italic">Calendar</span>
         </h1>
-        <p className="text-slate-400 mt-2">View all bookings in a calendar format</p>
       </div>
 
       {isLoading ? (

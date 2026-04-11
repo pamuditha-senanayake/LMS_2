@@ -91,9 +91,7 @@ export default function TicketStatistics() {
                 
                 computedStats = {
                     total, open, inProgress, resolved, rejected,
-                    critical, high, medium, low,
-                    avgResolutionHours: 0,
-                    resolvedWithTime: 0
+                    critical, high, medium, low
                 };
             }
 
