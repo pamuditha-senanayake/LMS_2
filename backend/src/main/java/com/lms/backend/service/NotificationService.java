@@ -50,4 +50,20 @@ public class NotificationService {
         notification.setReadAt(LocalDateTime.now());
         return notificationRepository.save(notification);
     }
+
+    public void markAllAsRead(String userId) {
+        List<Notification> unread = notificationRepository.findByRecipientUserIdAndIsReadFalse(userId);
+        unread.forEach(n -> {
+            n.setIsRead(true);
+            n.setReadAt(LocalDateTime.now());
+        });
+        notificationRepository.saveAll(unread);
+    }
+
+    public void deleteNotification(String notificationId) {
+        if (!notificationRepository.existsById(notificationId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Notification not found");
+        }
+        notificationRepository.deleteById(notificationId);
+    }
 }
