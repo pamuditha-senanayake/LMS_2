@@ -2,7 +2,58 @@
 
 import { useEffect, useState, useMemo } from "react";
 import Swal from "sweetalert2";
-import { Activity, RefreshCw, Plus, Search, Building2, Calendar, Users, Package, BarChart3 } from "lucide-react";
+import { Activity, RefreshCw, Search, Building2, Calendar, Users, Package, BarChart3 } from "lucide-react";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
+
+interface BookingCountMap {
+    [key: string]: number;
+}
+
+function BookingsByDayChart({ data }: { data: BookingCountMap }) {
+    const dayOrder = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const barColors = ['#f97316', '#eab308', '#22c55e', '#14b8a6', '#3b82f6', '#8b5cf6', '#ec4899'];
+    const chartData = dayOrder.map((day, idx) => ({
+        name: dayLabels[idx],
+        bookings: data[day] || 0,
+        fill: barColors[idx]
+    }));
+
+    return (
+        <div className="h-48">
+            <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={chartData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+                    <XAxis 
+                        dataKey="name" 
+                        axisLine={false} 
+                        tickLine={false} 
+                        tick={{ fill: '#94a3b8', fontSize: 12 }}
+                    />
+                    <YAxis 
+                        axisLine={false} 
+                        tickLine={false} 
+                        tick={{ fill: '#94a3b8', fontSize: 12 }}
+                        allowDecimals={false}
+                    />
+                    <Tooltip 
+                        contentStyle={{ 
+                            background: '#1e293b', 
+                            border: '1px solid #334155', 
+                            borderRadius: '8px',
+                            color: '#f8fafc'
+                        }}
+                        cursor={{ fill: 'rgba(255,255,255,0.05)' }}
+                    />
+                    <Bar dataKey="bookings" radius={[4, 4, 0, 0]}>
+                        {chartData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.fill} />
+                        ))}
+                    </Bar>
+                </BarChart>
+            </ResponsiveContainer>
+        </div>
+    );
+}
 
 interface Booking {
     id: string;
@@ -297,17 +348,10 @@ export default function AdminFacilities() {
                     <button 
                         onClick={fetchData}
                         disabled={loading}
-                        className="flex items-center gap-2 px-4 py-2 bg-card border border-border-main hover:border-primary text-foreground rounded-xl font-medium text-sm transition-all"
+                        className="flex items-center gap-2 px-4 py-2 bg-card border border-border-main hover:border-primary text-foreground rounded-xl font-medium text-sm transition-all ml-auto"
                     >
                         <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
                         Sync
-                    </button>
-                    <button 
-                        onClick={handleCreateResource}
-                        className="flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary-dark text-white rounded-xl font-medium text-sm transition-all"
-                    >
-                        <Plus size={16} />
-                        Add Resource
                     </button>
                 </div>
             </div>
@@ -361,24 +405,42 @@ export default function AdminFacilities() {
                             {topFacilities.length === 0 ? (
                                 <p className="text-muted text-sm py-8 text-center">No booking data available</p>
                             ) : (
-                                <div className="space-y-3">
-                                    {topFacilities.map((facility, idx) => (
-                                        <div key={idx} className="flex items-center gap-3">
-                                            <span className="text-xs text-muted w-4">{idx + 1}.</span>
-                                            <div className="flex-1">
-                                                <div className="flex justify-between mb-1">
-                                                    <span className="text-sm font-medium text-foreground truncate max-w-[150px]">{facility.name}</span>
-                                                    <span className="text-sm font-bold text-primary">{facility.count}</span>
-                                                </div>
-                                                <div className="h-2 bg-foreground/10 rounded-full overflow-hidden">
-                                                    <div 
-                                                        className="h-full bg-primary rounded-full transition-all"
-                                                        style={{ width: `${(facility.count / maxFacilityCount) * 100}%` }}
-                                                    />
+                                <div className="space-y-4">
+                                    {topFacilities.map((facility, idx) => {
+                                        const barColors = [
+                                            'bg-gradient-to-r from-pink-500 to-rose-500 shadow-lg shadow-pink-500/30',
+                                            'bg-gradient-to-r from-violet-500 to-purple-500 shadow-lg shadow-violet-500/30',
+                                            'bg-gradient-to-r from-blue-500 to-cyan-500 shadow-lg shadow-blue-500/30',
+                                            'bg-gradient-to-r from-emerald-500 to-green-500 shadow-lg shadow-emerald-500/30',
+                                            'bg-gradient-to-r from-amber-500 to-yellow-500',
+                                            'bg-gradient-to-r from-orange-500 to-amber-500',
+                                            'bg-gradient-to-r from-slate-400 to-slate-500',
+                                            'bg-gradient-to-r from-slate-500 to-slate-600',
+                                        ];
+                                        const colorClass = barColors[Math.min(idx, barColors.length - 1)];
+                                        const percentage = maxFacilityCount > 0 ? (facility.count / maxFacilityCount) * 100 : 0;
+                                        return (
+                                            <div key={idx} className="flex items-center gap-3">
+                                                <span className={`text-xs font-bold w-5 ${
+                                                    idx === 0 ? 'text-pink-400' : idx === 1 ? 'text-violet-400' : idx === 2 ? 'text-blue-400' : 'text-muted'
+                                                }`}>{idx + 1}.</span>
+                                                <div className="flex-1">
+                                                    <div className="flex justify-between mb-2">
+                                                        <span className="text-sm font-medium text-foreground truncate max-w-[160px]">{facility.name}</span>
+                                                        <span className={`text-sm font-bold ${
+                                                            idx === 0 ? 'text-pink-400' : idx === 1 ? 'text-violet-400' : idx === 2 ? 'text-blue-400' : 'text-foreground'
+                                                        }`}>{facility.count}</span>
+                                                    </div>
+                                                    <div className="h-2.5 bg-foreground/10 rounded-full overflow-hidden">
+                                                        <div 
+                                                            className={`h-full ${colorClass} rounded-full transition-all duration-500`}
+                                                            style={{ width: `${percentage}%` }}
+                                                        />
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    ))}
+                                        );
+                                    })}
                                 </div>
                             )}
                         </div>
@@ -388,20 +450,7 @@ export default function AdminFacilities() {
                                 <Calendar size={18} className="text-primary" />
                                 <h3 className="font-semibold text-foreground">Bookings by Day</h3>
                             </div>
-                            <div className="flex items-end justify-between gap-2 h-40">
-                                {Object.entries(dayBookingCounts).map(([day, count]) => (
-                                    <div key={day} className="flex-1 flex flex-col items-center gap-2">
-                                        <div className="w-full bg-foreground/10 rounded-t-lg overflow-hidden relative flex-1">
-                                            <div 
-                                                className="absolute bottom-0 w-full bg-primary rounded-t-lg transition-all"
-                                                style={{ height: `${(count / maxDayCount) * 100}%` }}
-                                            />
-                                        </div>
-                                        <span className="text-xs text-muted truncate w-full text-center">{day.slice(0, 3)}</span>
-                                        <span className="text-xs font-bold text-foreground">{count}</span>
-                                    </div>
-                                ))}
-                            </div>
+                            <BookingsByDayChart data={dayBookingCounts} />
                         </div>
                     </div>
                 </>
