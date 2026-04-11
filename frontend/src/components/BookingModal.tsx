@@ -157,6 +157,11 @@ export default function BookingModal({ isOpen, onClose, onSuccess, editBooking, 
       return;
     }
 
+    if (expectedAttendees > selectedResource.capacity) {
+      setError(`Expected attendees (${expectedAttendees}) exceeds resource capacity (${selectedResource.capacity})`);
+      return;
+    }
+
     setSubmitting(true);
     setError("");
 
@@ -206,7 +211,10 @@ export default function BookingModal({ isOpen, onClose, onSuccess, editBooking, 
       if (res.ok) {
         onSuccess();
         onClose();
-        router.push("/dashboard/my-bookings");
+        setTimeout(() => {
+          router.replace("/dashboard/bookings");
+          window.location.reload();
+        }, 150);
       } else {
         const errText = await res.text();
         if (errText.startsWith("BOOKING_CONFLICT:")) {
