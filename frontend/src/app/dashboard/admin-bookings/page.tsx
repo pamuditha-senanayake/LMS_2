@@ -134,8 +134,7 @@ export default function AdminBookings() {
       confirmButtonText: 'Approve',
       background: '#020617',
       color: '#ffffff',
-      padding: '2rem',
-      borderRadius: '16px'
+      padding: '2rem'
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
@@ -165,8 +164,7 @@ export default function AdminBookings() {
               `,
               background: '#020617', 
               color: '#ffffff',
-              padding: '2rem',
-              borderRadius: '16px'
+              padding: '2rem'
             });
             queryClient.invalidateQueries({ queryKey: ["admin-bookings"] });
             queryClient.invalidateQueries({ queryKey: ["booking-stats"] });
@@ -217,7 +215,6 @@ export default function AdminBookings() {
       background: '#020617',
       color: '#ffffff',
       padding: '2rem',
-      borderRadius: '16px',
       didOpen: () => {
         const select = document.getElementById('reject-reason');
         if (select) {
@@ -273,8 +270,7 @@ export default function AdminBookings() {
               `,
               background: '#020617', 
               color: '#ffffff',
-              padding: '2rem',
-              borderRadius: '16px'
+              padding: '2rem'
             });
             queryClient.invalidateQueries({ queryKey: ["admin-bookings"] });
             queryClient.invalidateQueries({ queryKey: ["booking-stats"] });
@@ -325,7 +321,6 @@ export default function AdminBookings() {
       background: '#020617',
       color: '#ffffff',
       padding: '2rem',
-      borderRadius: '16px',
       didOpen: () => {
         const select = document.getElementById('cancel-reason');
         if (select) {
@@ -381,8 +376,7 @@ export default function AdminBookings() {
               `,
               background: '#020617', 
               color: '#ffffff',
-              padding: '2rem',
-              borderRadius: '16px'
+              padding: '2rem'
             });
             queryClient.invalidateQueries({ queryKey: ["admin-bookings"] });
             queryClient.invalidateQueries({ queryKey: ["booking-stats"] });

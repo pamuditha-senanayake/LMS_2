@@ -132,8 +132,7 @@ export default function MyBookings() {
       confirmButtonText: 'Delete',
       background: '#020617',
       color: '#ffffff',
-      padding: '2rem',
-      borderRadius: '16px'
+      padding: '2rem'
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
@@ -158,9 +157,7 @@ export default function MyBookings() {
                 `,
                 background: '#020617', 
                 color: '#ffffff',
-                padding: '2rem',
-                borderRadius: '16px',
-                customClass: { popup: 'rounded-2xl' }
+                padding: '2rem'
             });
             queryClient.invalidateQueries({ queryKey: ["bookings"] });
           } else {
@@ -196,8 +193,7 @@ export default function MyBookings() {
       confirmButtonText: 'Cancel Booking',
       background: '#020617',
       color: '#ffffff',
-      padding: '2rem',
-      borderRadius: '16px'
+      padding: '2rem'
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
@@ -225,9 +221,7 @@ export default function MyBookings() {
                 `,
                 background: '#020617', 
                 color: '#ffffff',
-                padding: '2rem',
-                borderRadius: '16px',
-                customClass: { popup: 'rounded-2xl' }
+                padding: '2rem'
             });
             queryClient.invalidateQueries({ queryKey: ["bookings"] });
             setShowDetailsModal(false);
