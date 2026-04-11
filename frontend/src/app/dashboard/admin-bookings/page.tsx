@@ -462,9 +462,9 @@ export default function AdminBookings() {
                       <div className="text-2xl font-bold text-brand-peach">{stats.pending}</div>
                       <div className="text-xs text-brand-peach/70 font-medium">Pending</div>
                   </div>
-                  <div className="bg-primary-light/10 backdrop-blur-sm rounded-xl p-4 border border-primary-light/20">
-                      <div className="text-2xl font-bold text-primary">{stats.approved}</div>
-                      <div className="text-xs text-primary/70 font-medium">Approved</div>
+                  <div className="bg-emerald-500/10 backdrop-blur-sm rounded-xl p-4 border border-emerald-500/20">
+                      <div className="text-2xl font-bold text-emerald-500">{stats.approved}</div>
+                      <div className="text-xs text-emerald-500/70 font-medium">Approved</div>
                   </div>
                   <div className="bg-rose-500/10 backdrop-blur-sm rounded-xl p-4 border border-rose-500/20">
                       <div className="text-2xl font-bold text-rose-500">{stats.rejected}</div>
