@@ -590,7 +590,7 @@ export default function TicketingPage() {
                                     <button
                                         type="submit"
                                         disabled={submitting}
-                                        className="flex-1 px-4 py-3 bg-primary hover:bg-primary-dark text-white rounded-xl font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-primary/20"
+                                        className="flex-1 px-4 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white rounded-xl font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-indigo-500/30"
                                     >
                                         {submitting ? (
                                             <>
@@ -718,7 +718,7 @@ export default function TicketingPage() {
                                         <button
                                             onClick={handleSaveEdit}
                                             disabled={submitting}
-                                            className="flex-1 px-4 py-3 bg-gradient-to-r from-primary to-brand-pink hover:opacity-90 text-white rounded-xl font-bold text-sm transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-xl shadow-primary/20"
+                                            className="flex-1 px-4 py-3 bg-indigo-500/10 hover:bg-indigo-500 hover:text-white text-indigo-400 rounded-xl font-bold text-sm transition-all disabled:opacity-50 flex items-center justify-center gap-2 border border-indigo-500/20"
                                         >
                                             {submitting ? (
                                                 <>
@@ -756,7 +756,8 @@ export default function TicketingPage() {
                             <select
                                 value={filters.status}
                                 onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-                                className="w-full px-3 py-2 bg-background border border-border-main rounded-lg text-sm text-foreground focus:border-primary focus:outline-none"
+                                className="w-full px-3 py-2 bg-slate-800 border border-border-main rounded-lg text-sm text-foreground focus:border-primary focus:outline-none appearance-none cursor-pointer"
+                                style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 8px center', backgroundSize: '16px' }}
                             >
                                 <option value="">All</option>
                                 <option value="OPEN">Open</option>
@@ -770,7 +771,8 @@ export default function TicketingPage() {
                             <select
                                 value={filters.priority}
                                 onChange={(e) => setFilters({ ...filters, priority: e.target.value })}
-                                className="w-full px-3 py-2 bg-background border border-border-main rounded-lg text-sm text-foreground focus:border-primary focus:outline-none"
+                                className="w-full px-3 py-2 bg-slate-800 border border-border-main rounded-lg text-sm text-foreground focus:border-primary focus:outline-none appearance-none cursor-pointer"
+                                style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 8px center', backgroundSize: '16px' }}
                             >
                                 <option value="">All</option>
                                 <option value="CRITICAL">Critical</option>
@@ -960,7 +962,7 @@ export default function TicketingPage() {
                                         <div className="flex gap-2 mt-4 pt-4 border-t border-border-main/50">
                                             <button
                                                 onClick={() => handleEdit(ticket)}
-                                                className="flex-1 px-3 py-2 text-sm font-bold bg-background border border-border-main hover:border-primary text-foreground rounded-xl transition-all active:scale-95"
+                                                className="flex-1 px-3 py-2 text-sm font-bold bg-indigo-500/10 hover:bg-indigo-500 hover:text-white text-indigo-400 rounded-xl transition-all border border-indigo-500/20 active:scale-95"
                                             >
                                                 Edit
                                             </button>
