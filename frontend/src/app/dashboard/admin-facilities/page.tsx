@@ -158,8 +158,14 @@ export default function AdminFacilities() {
                         credentials: "include"
                     });
                     if (res.ok) {
-                        Swal.fire({ title: "Deleted!", icon: "success", background: '#0f172a', color: '#f8fafc' });
-                        fetchData();
+                        Swal.fire({
+                            title: "Deleted!", 
+                            icon: "success", 
+                            background: 'var(--card-bg)', 
+                            color: 'var(--foreground)',
+                            customClass: { popup: 'glass-card border-none rounded-[2rem]' }
+                        });
+                        fetchResources();
                     }
                 } catch {}
             }
@@ -235,8 +241,14 @@ export default function AdminFacilities() {
                         body: JSON.stringify(result.value)
                     });
                     if (res.ok) {
-                        Swal.fire({ title: "Deployed!", icon: "success", background: '#0f172a', color: '#f8fafc' });
-                        fetchData();
+                        Swal.fire({ 
+                            title: "Deployed!", 
+                            icon: "success", 
+                            background: 'var(--card-bg)', 
+                            color: 'var(--foreground)',
+                            customClass: { popup: 'glass-card border-none rounded-[2rem]' }
+                        });
+                        fetchResources();
                     } else {
                         Swal.fire({ title: "Failed", text: await res.text(), icon: "error", background: '#0f172a', color: '#f8fafc' });
                     }

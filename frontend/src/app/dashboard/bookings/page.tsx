@@ -135,9 +135,9 @@ export default function MyBookings() {
             Swal.fire({ 
                 title: "Deleted!", 
                 icon: "success", 
-                background: 'var(--card-bg)', 
-                color: 'var(--foreground)',
-                customClass: { popup: 'glass-card border-none rounded-[2rem]' }
+                background: '#1e293b', 
+                color: '#fff',
+                customClass: { popup: 'rounded-2xl' }
             });
             queryClient.invalidateQueries({ queryKey: ["bookings"] });
           } else {
@@ -178,9 +178,9 @@ export default function MyBookings() {
             Swal.fire({ 
                 title: "Cancelled!", 
                 icon: "success", 
-                background: 'var(--card-bg)', 
-                color: 'var(--foreground)',
-                customClass: { popup: 'glass-card border-none rounded-[2rem]' }
+                background: '#1e293b', 
+                color: '#fff',
+                customClass: { popup: 'rounded-2xl' }
             });
             queryClient.invalidateQueries({ queryKey: ["bookings"] });
             setShowDetailsModal(false);

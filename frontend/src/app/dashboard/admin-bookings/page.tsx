@@ -138,7 +138,7 @@ export default function AdminBookings() {
           });
 
           if (res.ok) {
-            Swal.fire({ title: "Success!", icon: "success", background: 'var(--card-bg)', color: 'var(--foreground)' });
+            Swal.fire({ title: "Success!", icon: "success", background: '#1e293b', color: '#fff' });
             queryClient.invalidateQueries({ queryKey: ["admin-bookings"] });
             queryClient.invalidateQueries({ queryKey: ["booking-stats"] });
           } else {
@@ -178,7 +178,7 @@ export default function AdminBookings() {
           });
 
           if (res.ok) {
-            Swal.fire({ title: "Success!", icon: "success", background: 'var(--card-bg)', color: 'var(--foreground)' });
+            Swal.fire({ title: "Success!", icon: "success", background: '#1e293b', color: '#fff' });
             queryClient.invalidateQueries({ queryKey: ["admin-bookings"] });
             queryClient.invalidateQueries({ queryKey: ["booking-stats"] });
           } else {

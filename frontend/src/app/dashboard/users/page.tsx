@@ -149,9 +149,9 @@ export default function UserManagement() {
                             title: "Saved!", 
                             text: "User information updated.", 
                             icon: "success", 
-                            background: 'var(--card-bg)', 
-                            color: 'var(--foreground)',
-                            customClass: { popup: 'rounded-3xl border border-border-main shadow-2xl' }
+                            background: '#1e293b', 
+                            color: '#fff',
+                            customClass: { popup: 'rounded-2xl' }
                         });
                         fetchUsers();
                     } else {
@@ -205,9 +205,9 @@ export default function UserManagement() {
                             title: "Deleted", 
                             text: "User has been removed successfully.", 
                             icon: "success", 
-                            background: 'var(--card-bg)', 
-                            color: 'var(--foreground)',
-                            customClass: { popup: 'rounded-3xl border border-border-main shadow-2xl' }
+                            background: '#1e293b', 
+                            color: '#fff',
+                            customClass: { popup: 'rounded-2xl' }
                         });
                         fetchUsers();
                     } else {

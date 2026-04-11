@@ -243,9 +243,9 @@ export default function TicketingPage() {
                     title: "Issue Reported!",
                     text: "Your ticket has been submitted successfully.",
                     icon: "success",
-                    background: 'var(--card-bg)',
-                    color: 'var(--foreground)',
-                    customClass: { popup: 'glass-card border-none rounded-[2rem]' }
+                    background: '#1e293b',
+                    color: '#fff',
+                    customClass: { popup: 'rounded-2xl' }
                 });
                 setShowReportModal(false);
                 setSelectedImages([]);
@@ -304,9 +304,9 @@ export default function TicketingPage() {
                     Swal.fire({
                         title: "Deleted!",
                         icon: "success",
-                        background: 'var(--card-bg)',
-                        color: 'var(--foreground)',
-                        customClass: { popup: 'glass-card border-none rounded-[2rem]' }
+                        background: '#1e293b',
+                        color: '#fff',
+                        customClass: { popup: 'rounded-2xl' }
                     });
                     fetchTickets(currentUser!.id);
                 } else {
@@ -359,9 +359,9 @@ export default function TicketingPage() {
                 Swal.fire({
                     title: "Updated!",
                     icon: "success",
-                    background: 'var(--card-bg)',
-                    color: 'var(--foreground)',
-                    customClass: { popup: 'glass-card border-none rounded-[2rem]' }
+                    background: '#1e293b',
+                    color: '#fff',
+                    customClass: { popup: 'rounded-2xl' }
                 });
                 setShowEditModal(false);
                 fetchTickets(currentUser!.id);
