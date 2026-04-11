@@ -34,6 +34,7 @@ export default function Navbar() {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [theme, setTheme] = useState<'light' | 'dark'>('dark');
     const dropdownRef = useRef<HTMLDivElement>(null);
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
 
     // Sync theme state from localStorage
     useEffect(() => {
@@ -50,19 +51,12 @@ export default function Navbar() {
         window.dispatchEvent(new Event("theme-update"));
     };
 
-    useEffect(() => {
-        const handleScroll = () => setScrolled(window.scrollY > 20);
-        window.addEventListener("scroll", handleScroll);
-        
+    const fetchNotifications = () => {
         const storedUser = localStorage.getItem("user");
         if (storedUser) {
             try {
                 const userData = JSON.parse(storedUser);
-                setUser(userData);
-                setIsAdmin(userData.roles?.includes("ROLE_ADMIN"));
-                
                 if (userData.id) {
-                    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
                     fetch(`${apiUrl}/api/notifications/user/${userData.id}`, { credentials: "include" })
                         .then(res => res.json())
                         .then(data => {
@@ -76,6 +70,26 @@ export default function Navbar() {
                 // ignore parse errors
             }
         }
+    };
+
+    useEffect(() => {
+        const handleScroll = () => setScrolled(window.scrollY > 20);
+        window.addEventListener("scroll", handleScroll);
+        
+        const storedUser = localStorage.getItem("user");
+        if (storedUser) {
+            try {
+                const userData = JSON.parse(storedUser);
+                setUser(userData);
+                setIsAdmin(userData.roles?.includes("ROLE_ADMIN"));
+            } catch {
+                // ignore parse errors
+            }
+        }
+
+        fetchNotifications();
+        const notificationInterval = setInterval(fetchNotifications, 10000);
+
         const handleClickOutside = (event: MouseEvent) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
                 setIsDropdownOpen(false);
@@ -83,11 +97,15 @@ export default function Navbar() {
         };
 
         window.addEventListener("mousedown", handleClickOutside);
+        window.addEventListener("notification-update", fetchNotifications);
+
         return () => {
             window.removeEventListener("scroll", handleScroll);
             window.removeEventListener("mousedown", handleClickOutside);
+            window.removeEventListener("notification-update", fetchNotifications);
+            clearInterval(notificationInterval);
         };
-    }, [pathname]);
+    }, [pathname, apiUrl]);
 
     useEffect(() => {
         if (isAdmin && pathname === "/") {
