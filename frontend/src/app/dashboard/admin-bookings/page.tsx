@@ -423,7 +423,7 @@ export default function AdminBookings() {
     : bookings;
 
   return (
-    <div className="p-6 text-foreground max-w-7xl mx-auto">
+    <div className="p-2 pt-2 text-foreground max-w-7xl mx-auto">
       {/* Hero Banner Section */}
       <div className="relative w-full rounded-3xl overflow-hidden border border-border-main shadow-2xl bg-card group/banner mb-8">
         {/* Background Decoration */}
@@ -431,8 +431,8 @@ export default function AdminBookings() {
         <div className="absolute top-0 right-0 w-96 h-96 bg-primary/20 blur-[120px] -mr-48 -mt-48 rounded-full" />
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-brand-pink/10 blur-[120px] -ml-48 -mb-48 rounded-full" />
         
-        <div className="relative p-8 md:p-10 flex flex-col items-center text-center space-y-6">
-            <div className="space-y-3 max-w-2xl">
+        <div className="relative p-5 md:p-6 flex flex-col items-center text-center space-y-4">
+            <div className="space-y-2 max-w-2xl">
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-black uppercase tracking-[0.3em]">
                     <Activity size={12} />
                     Institution Booking Management
@@ -477,24 +477,11 @@ export default function AdminBookings() {
               </div>
             )}
 
-            {/* Sync Button */}
-            <button 
-                onClick={() => {
-                  queryClient.invalidateQueries({ queryKey: ["admin-bookings"] });
-                  queryClient.invalidateQueries({ queryKey: ["booking-stats"] });
-                }}
-                disabled={isFetching}
-                className="flex items-center justify-center gap-3 px-8 py-3 btn-primary-action rounded-2xl font-bold text-sm disabled:opacity-50"
-            >
-
-                <RefreshCw size={18} className={isFetching ? 'animate-spin' : ''} />
-                {isFetching ? "Syncing..." : "Sync Bookings"}
-            </button>
         </div>
       </div>
 
       <div className="bg-card rounded-2xl p-4 mb-6 border border-border-main shadow-lg">
-        <div className="flex flex-col md:flex-row gap-4">
+        <div className="flex flex-col md:flex-row gap-4 items-center">
           <div className="flex-1 relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" size={18} />
             <input
@@ -516,6 +503,17 @@ export default function AdminBookings() {
             <option value="REJECTED">Rejected</option>
             <option value="CANCELLED">Cancelled</option>
           </select>
+          <button 
+            onClick={() => {
+              queryClient.invalidateQueries({ queryKey: ["admin-bookings"] });
+              queryClient.invalidateQueries({ queryKey: ["booking-stats"] });
+            }}
+            disabled={isFetching}
+            className="p-2.5 bg-primary hover:bg-primary/90 text-white rounded-xl disabled:opacity-50 transition-colors"
+            title="Refresh"
+          >
+            <RefreshCw size={18} className={isFetching ? 'animate-spin' : ''} />
+          </button>
         </div>
       </div>
 
