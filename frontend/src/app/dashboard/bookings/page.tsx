@@ -112,16 +112,28 @@ export default function MyBookings() {
 
   const handleDelete = useCallback((booking: Booking) => {
     Swal.fire({
-      title: "Delete booking request?",
-      text: "This action cannot be undone.",
-      icon: 'warning',
+      title: `Delete Booking`,
+      html: `
+        <div style="text-align: center; padding: 1rem 0;">
+          <div style="width: 64px; height: 64px; margin: 0 auto 1rem; background: rgba(239, 68, 68, 0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="3 6 5 6 21 6"></polyline>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+            </svg>
+          </div>
+          <p style="color: #94a3b8; font-size: 14px; margin-bottom: 0.5rem;">Are you sure you want to delete this booking request?</p>
+          <p style="color: #64748b; font-size: 13px;">This action cannot be undone.</p>
+        </div>
+      `,
       showCancelButton: true,
-      confirmButtonColor: '#ec4899',
+      confirmButtonColor: '#ef4444',
       cancelButtonColor: '#6366f1',
-      confirmButtonText: 'Delete!',
-      background: 'var(--card-bg)',
-      color: 'var(--foreground)',
-      customClass: { popup: 'rounded-[1.5rem] border border-border-main glass-card p-6' }
+      cancelButtonText: 'Cancel',
+      confirmButtonText: 'Delete',
+      background: '#020617',
+      color: '#ffffff',
+      padding: '2rem',
+      borderRadius: '16px'
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
@@ -133,10 +145,21 @@ export default function MyBookings() {
 
           if (res.ok) {
             Swal.fire({ 
-                title: "Deleted!", 
-                icon: "success", 
-                background: '#1e293b', 
-                color: '#fff',
+                title: "Deleted!",
+                html: `
+                  <div style="text-align: center; padding: 1rem 0;">
+                    <div style="width: 64px; height: 64px; margin: 0 auto 1rem; background: rgba(16, 185, 129, 0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                      </svg>
+                    </div>
+                    <p style="color: #94a3b8; font-size: 14px;">Booking has been deleted successfully.</p>
+                  </div>
+                `,
+                background: '#020617', 
+                color: '#ffffff',
+                padding: '2rem',
+                borderRadius: '16px',
                 customClass: { popup: 'rounded-2xl' }
             });
             queryClient.invalidateQueries({ queryKey: ["bookings"] });
@@ -152,16 +175,29 @@ export default function MyBookings() {
 
   const handleCancel = useCallback((booking: Booking) => {
     Swal.fire({
-      title: "Cancel this booking?",
-      text: "This action cannot be undone.",
-      icon: 'warning',
+      title: `Cancel Booking`,
+      html: `
+        <div style="text-align: center; padding: 1rem 0;">
+          <div style="width: 64px; height: 64px; margin: 0 auto 1rem; background: rgba(239, 68, 68, 0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="15" y1="9" x2="9" y2="15"></line>
+              <line x1="9" y1="9" x2="15" y2="15"></line>
+            </svg>
+          </div>
+          <p style="color: #94a3b8; font-size: 14px; margin-bottom: 0.5rem;">Are you sure you want to cancel this booking?</p>
+          <p style="color: #64748b; font-size: 13px;">This action cannot be undone.</p>
+        </div>
+      `,
       showCancelButton: true,
       confirmButtonColor: '#ef4444',
       cancelButtonColor: '#6366f1',
+      cancelButtonText: 'Close',
       confirmButtonText: 'Cancel Booking',
-      background: 'var(--card-bg)',
-      color: 'var(--foreground)',
-      customClass: { popup: 'rounded-[1.5rem] border border-border-main glass-card p-6' }
+      background: '#020617',
+      color: '#ffffff',
+      padding: '2rem',
+      borderRadius: '16px'
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
@@ -176,10 +212,21 @@ export default function MyBookings() {
 
           if (res.ok) {
             Swal.fire({ 
-                title: "Cancelled!", 
-                icon: "success", 
-                background: '#1e293b', 
-                color: '#fff',
+                title: "Cancelled!",
+                html: `
+                  <div style="text-align: center; padding: 1rem 0;">
+                    <div style="width: 64px; height: 64px; margin: 0 auto 1rem; background: rgba(16, 185, 129, 0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                      </svg>
+                    </div>
+                    <p style="color: #94a3b8; font-size: 14px;">Booking has been cancelled successfully.</p>
+                  </div>
+                `,
+                background: '#020617', 
+                color: '#ffffff',
+                padding: '2rem',
+                borderRadius: '16px',
                 customClass: { popup: 'rounded-2xl' }
             });
             queryClient.invalidateQueries({ queryKey: ["bookings"] });

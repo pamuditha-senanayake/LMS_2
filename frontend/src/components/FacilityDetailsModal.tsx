@@ -255,6 +255,12 @@ export default function FacilityDetailsModal({ resource, isOpen, onClose, prefil
             return;
         }
 
+        const bookingAttendees = isUtility ? quantity : attendees;
+        if (capacity && bookingAttendees > capacity) {
+            Swal.fire("Error", `Expected attendees (${bookingAttendees}) exceeds resource capacity (${capacity})`, "error");
+            return;
+        }
+
         setIsBooking(true);
         try {
             const storedUser = localStorage.getItem("user");
@@ -310,7 +316,10 @@ export default function FacilityDetailsModal({ resource, isOpen, onClose, prefil
                     timer: 2000
                 });
                 onClose();
-                router.push("/dashboard/my-bookings");
+                setTimeout(() => {
+                    router.replace("/dashboard/bookings");
+                    window.location.reload();
+                }, 150);
             } else {
                 const errorText = await res.text();
                 console.log("Booking error response:", errorText);
