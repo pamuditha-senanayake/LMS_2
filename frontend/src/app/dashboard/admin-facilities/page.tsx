@@ -165,7 +165,7 @@ export default function AdminFacilities() {
                             color: 'var(--foreground)',
                             customClass: { popup: 'glass-card border-none rounded-[2rem]' }
                         });
-                        fetchResources();
+                        fetchData();
                     }
                 } catch {}
             }
@@ -248,7 +248,7 @@ export default function AdminFacilities() {
                             color: 'var(--foreground)',
                             customClass: { popup: 'glass-card border-none rounded-[2rem]' }
                         });
-                        fetchResources();
+                        fetchData();
                     } else {
                         Swal.fire({ title: "Failed", text: await res.text(), icon: "error", background: '#0f172a', color: '#f8fafc' });
                     }
