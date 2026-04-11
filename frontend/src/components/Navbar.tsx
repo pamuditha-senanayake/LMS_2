@@ -105,7 +105,7 @@ export default function Navbar() {
             window.removeEventListener("notification-update", fetchNotifications);
             clearInterval(notificationInterval);
         };
-    }, [pathname, apiUrl]);
+    }, [pathname]);
 
     useEffect(() => {
         if (isAdmin && pathname === "/") {
